@@ -43,7 +43,7 @@ public class TrackController : MonoBehaviour {
         return null;
     }
 
-    Quaternion TileRotation(Vector3Int pos) {
+    public Quaternion TileRotation(Vector3Int pos) {
         if (tilemap.HasTile(pos))
         {
             return tilemap.GetTransformMatrix(pos).rotation;
@@ -51,7 +51,15 @@ public class TrackController : MonoBehaviour {
         return Quaternion.identity;
     }
 
-    Vector3Int[] ValidExits(Vector3 position, Vector3 direction) {
+    public Vector3Int GetPosInt(Vector3 position) {
+        return grid.WorldToCell(position);
+    }
+
+    public Vector3 GetPos(Vector3 position) {
+        return grid.GetCellCenterWorld(grid.WorldToCell(position));
+    }
+
+    public Vector3Int[] ValidExits(Vector3 position, Vector3 direction) {
         Vector3Int pos = grid.WorldToCell(position);
         TileBase tiletype = GetTile(pos);
         Quaternion rotation = TileRotation(pos);
@@ -77,7 +85,7 @@ public class TrackController : MonoBehaviour {
                     toreturn[2] = pos + Vector3Int.RoundToInt(rotation * (Vector3.right));
                     break;
                 case "branchoff":
-                    if (Vector3.Dot(rotation * (Vector3.left),direction) > 0) {
+                    if (Vector3.Dot(rotation * (Vector3.left),direction) > 0.2) {
                         goto case "double_branchoff";
                     }
                     else {
