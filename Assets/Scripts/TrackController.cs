@@ -6,13 +6,14 @@ using UnityEngine.Tilemaps;
 public class TrackController : MonoBehaviour {
     Tilemap tilemap;
     Grid grid;
+    public GameObject gridObj;
     public GameObject camobj;
     public Vector3 direction;
     Camera cam;
 	// Use this for initialization
-	void Start () {
+	void Awake () {
         tilemap = GetComponent<Tilemap>();
-        grid=GetComponentInParent<Grid>();
+        grid=gridObj.GetComponent<Grid>();
         cam = camobj.GetComponent<Camera>();
         //direction = Vector3.left;
 	}

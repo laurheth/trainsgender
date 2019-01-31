@@ -4,13 +4,18 @@ using UnityEngine;
 
 public class TrainMover : MonoBehaviour {
     public GameObject trackObj;
+    public GameObject prevCarObj;
+    public float prevCarDist;
+    float currentDist;
+    float distCorrect;
+    TrainMover prevCar;
     TrackController trackController;
     Vector3[] positions;
     public Vector3 trainDirection;
     float squareDist;
     float squareLength;
     float lindir;
-    float speed;
+    public float speed;
     bool curved;
     Vector3 pivot;
     Vector3 trackDirection;
@@ -24,9 +29,19 @@ public class TrainMover : MonoBehaviour {
         positions = new Vector3[5];
         pivot = Vector3.zero;
         DefineTile(trackController.TileRotation(trackController.GetPosInt(transform.position))*Vector3.left);
+        currentDist = 0f;
+        if (prevCarObj != null) {
+            prevCar = prevCarObj.GetComponent<TrainMover>();
+        }
 	}
+
+    public void SetBackDist(float headDist, float backDist) {
+        distCorrect = (headDist - backDist) - currentDist;
+        //currentDist += difference;
+        //squareDist += difference;
+    }
 	
-    void DefineTile(Vector3 enterDirection) {
+    void DefineTile(Vector3 enterDirection, bool forward=true) {
         Vector3Int[] exits = trackController.ValidExits(transform.position, trackDirection);
         //transform.position = positions[1];
         positions[2] = trackController.GetPos(transform.position);
@@ -44,7 +59,8 @@ public class TrainMover : MonoBehaviour {
         /*trackDirection = trackController.TileRotation(trackController.GetPosInt(positions[1]))
                                             * Vector3.left;*/
         //speed = Mathf.Abs(speed);
-        if (((positions[4]-transform.position).sqrMagnitude) > ((positions[0] - transform.position).sqrMagnitude))
+        bool startbool=((positions[4] - transform.position).sqrMagnitude) > ((positions[0] - transform.position).sqrMagnitude);
+        if (startbool == forward)
         //if (Vector3.Dot(enterDirection,trackController.TileRotation(trackController.GetPosInt(positions[1]))
         //                *Vector3.left) >= -.3)
         {
@@ -63,7 +79,13 @@ public class TrainMover : MonoBehaviour {
         positions[1] = (positions[0] + positions[2]) / 2f;
         positions[3] = (positions[4] + positions[2]) / 2f;
         trackDirection = (positions[3] - positions[1]);
-        squareDist -= squareLength;
+        if (forward)
+        {
+            squareDist -= squareLength;
+        }
+        else {
+            squareDist += squareLength;
+        }
         Debug.Log(positions[0] + " " + positions[2] + " " + positions[4]);
         if (curved) {
             pivot = (positions[0] + positions[4]) / 2f;
@@ -85,7 +107,14 @@ public class TrainMover : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        squareDist += Time.deltaTime * speed;
+        if (distCorrect>Time.deltaTime*speed) {
+            squareDist += 2f*Time.deltaTime * speed;
+            currentDist += 2f*Time.deltaTime * speed;
+        }
+        else if (distCorrect>-Time.deltaTime*speed) {
+            squareDist += Time.deltaTime * speed;
+            currentDist += Time.deltaTime * speed;
+        }
         //Debug.Log(lindir+ " "+ trainDirection);
         UpdatePosition();
         if (squareDist > squareLength)
@@ -96,8 +125,11 @@ public class TrainMover : MonoBehaviour {
         }
         else if (squareDist < -squareLength) {
             squareDist += squareLength;
-            DefineTile(trainDirection);
+            DefineTile(trainDirection,false);
             UpdatePosition();
+        }
+        if (prevCar != null) {
+            prevCar.SetBackDist(currentDist, prevCarDist);
         }
 	}
 }
