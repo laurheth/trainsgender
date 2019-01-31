@@ -6,68 +6,87 @@ public class TrainMover : MonoBehaviour {
     public GameObject trackObj;
     TrackController trackController;
     Vector3[] positions;
-    Vector3 trainDirection;
+    public Vector3 trainDirection;
     float squareDist;
     float squareLength;
+    float lindir;
     float speed;
     bool curved;
+    Vector3 pivot;
     Vector3 trackDirection;
 	// Use this for initialization
 	void Start () {
+        lindir = 1f;
         curved = false;
         trackController = trackObj.GetComponent<TrackController>();
         squareDist = 0f;
-        speed = 4f;
-        positions = new Vector3[3];
+        speed = 1f;
+        positions = new Vector3[5];
+        pivot = Vector3.zero;
         DefineTile(trackController.TileRotation(trackController.GetPosInt(transform.position))*Vector3.left);
 	}
 	
     void DefineTile(Vector3 enterDirection) {
         Vector3Int[] exits = trackController.ValidExits(transform.position, trackDirection);
         //transform.position = positions[1];
-        positions[1] = trackController.GetPos(transform.position);
-        positions[2] = exits[0];
-        positions[0] = exits[exits.Length - 1];
+        positions[2] = trackController.GetPos(transform.position);
+        positions[4] = trackController.GetPos(exits[0]);
+        positions[0] = trackController.GetPos(exits[exits.Length - 1]);
         if (exits[0].x == exits[exits.Length -1].x || exits[0].y == exits[exits.Length - 1].y) {
             squareLength = 0.5f;
             curved = false;
         }
         else {
-            squareLength = (1.570796f)/2f;
+            squareLength = (1.570796f)/4f;
             curved = true;
+            //Debug.Log("curved");
         }
-        trackDirection = trackController.TileRotation(trackController.GetPosInt(positions[1]))
-                                            * Vector3.left;
-        speed = Mathf.Abs(speed);
-        if (Vector3.Dot(enterDirection,trackController.TileRotation(trackController.GetPosInt(positions[1]))
-                        *Vector3.left) >= 0) {
-            squareDist -= squareLength;
-            speed = Mathf.Abs(speed);
+        /*trackDirection = trackController.TileRotation(trackController.GetPosInt(positions[1]))
+                                            * Vector3.left;*/
+        //speed = Mathf.Abs(speed);
+        if (((positions[4]-transform.position).sqrMagnitude) > ((positions[0] - transform.position).sqrMagnitude))
+        //if (Vector3.Dot(enterDirection,trackController.TileRotation(trackController.GetPosInt(positions[1]))
+        //                *Vector3.left) >= -.3)
+        {
+            //lindir = 1;
+            //speed = Mathf.Abs(speed);
         }
         else {
-            squareDist += squareLength;
+            //lindir = -1;
+            //Debug.Log("switch dir?");
+            positions[4] = positions[0];
+            positions[0] = trackController.GetPos(exits[0]);
+            //squareDist += squareLength;
             //trackDirection *= -1;
-            speed *= -1;
+            //speed *= -1;
+        }
+        positions[1] = (positions[0] + positions[2]) / 2f;
+        positions[3] = (positions[4] + positions[2]) / 2f;
+        trackDirection = (positions[3] - positions[1]);
+        squareDist -= squareLength;
+        Debug.Log(positions[0] + " " + positions[2] + " " + positions[4]);
+        if (curved) {
+            pivot = (positions[0] + positions[4]) / 2f;
         }
     }
 
     void UpdatePosition() {
-        if (!curved) {
-            transform.position = positions[1] + trackDirection * squareDist;
-            trainDirection = speed*trackDirection;
+        if (curved) {
+            transform.position = pivot
+                + Quaternion.Euler(0, 0, -(0.5f + 0.5f * squareDist / squareLength) *
+                                   Vector3.SignedAngle(positions[1]-pivot, positions[3]-pivot,Vector3.back)) * (positions[1] - pivot);
         }
         else {
-            transform.position = positions[1] - trackDirection / 2f + Quaternion.Euler(0, 0, -90) * trackDirection / 2f
-                +Quaternion.Euler(0,0,45-45f * (squareDist/squareLength))*trackDirection/2f;
-            trainDirection = speed * (Quaternion.Euler(0, 0, -90 * (squareDist / squareLength)) * trackDirection);
+            transform.position = positions[1] + trackDirection * (0.5f + 0.5f * squareDist / squareLength);
         }
-        transform.rotation = Quaternion.LookRotation(Vector3.back,trainDirection);
+        //transform.rotation = Quaternion.LookRotation(Vector3.back,trainDirection);
+
     }
 
 	// Update is called once per frame
 	void Update () {
         squareDist += Time.deltaTime * speed;
-        Debug.Log(squareDist);
+        //Debug.Log(lindir+ " "+ trainDirection);
         UpdatePosition();
         if (squareDist > squareLength)
         {
