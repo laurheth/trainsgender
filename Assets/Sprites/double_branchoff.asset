@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 13312, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: double_branchoff
   m_EditorClassIdentifier: 
-  m_Sprite: {fileID: 21300000, guid: 05327c447efcf4d1ca44d7c2ff4d0210, type: 3}
+  m_Sprite: {fileID: 21300008, guid: dc6146f67c691408c94502bb812782cb, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Transform:
     e00: 1

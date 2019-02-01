@@ -7,6 +7,7 @@ public class TrainMover : MonoBehaviour {
     public GameObject prevCarObj;
     public float prevCarDist;
     public GameObject trainSprite;
+    public bool showMessages;
     float currentDist;
     float distCorrect;
     TrainMover prevCar;
@@ -20,6 +21,8 @@ public class TrainMover : MonoBehaviour {
     bool curved;
     Vector3 pivot;
     Vector3 trackDirection;
+    Vector3 nextDirection;
+    public float turnAngle;
 	// Use this for initialization
 	void Start () {
         lindir = 1f;
@@ -34,6 +37,8 @@ public class TrainMover : MonoBehaviour {
         if (prevCarObj != null) {
             prevCar = prevCarObj.GetComponent<TrainMover>();
         }
+        trackDirection = Vector3.zero;
+        nextDirection = Vector3.zero;
 	}
 
     public void SetBackDist(float headDist, float backDist) {
@@ -43,12 +48,50 @@ public class TrainMover : MonoBehaviour {
     }
 	
     void DefineTile(Vector3 enterDirection, bool forward=true) {
-        Vector3Int[] exits = trackController.ValidExits(transform.position, trackDirection);
+        Vector3Int[] exits = trackController.ValidExits(transform.position,
+                                                        nextDirection);
+        if (showMessages) {
+            string msg = "";
+            for (int i = 0; i < exits.Length;i++) {
+                msg += exits[i];
+            }
+            Debug.Log(msg);
+        }
+        int startInd=0;
+        int targInd=exits.Length-1;
+        int[] minDists={0,0}; // 0 is start, 1 is end. Indices.
+        // Determine relevant exits
+        for (int j = 0; j < 2; j++)
+        {
+            for (int i = 0; i < exits.Length; i++)
+            {
+                if ((transform.position - exits[i] + j*(nextDirection.normalized
+                                                       +Quaternion.Euler(0,0,turnAngle)*nextDirection.normalized)).sqrMagnitude < 
+                    (transform.position - exits[minDists[j]] + j * trackDirection.normalized).sqrMagnitude) {
+                    if (j>0 && i == minDists[0]) {
+                        continue;
+                    }
+                    minDists[j] = i;
+                }
+            }
+            if (j==0 && minDists[0]==0) {
+                minDists[1] = 1;
+            }
+        }
+        startInd = minDists[0];
+        targInd = minDists[1];
+        if (startInd==targInd) {
+            startInd = 0;
+            targInd = exits.Length - 1;
+        }
+        /*if (showMessages) {
+            Debug.Log(startInd + " " + targInd);
+        }*/
         //transform.position = positions[1];
         positions[2] = trackController.GetPos(transform.position);
-        positions[4] = trackController.GetPos(exits[0]);
-        positions[0] = trackController.GetPos(exits[exits.Length - 1]);
-        if (exits[0].x == exits[exits.Length -1].x || exits[0].y == exits[exits.Length - 1].y) {
+        positions[4] = trackController.GetPos(exits[startInd]);
+        positions[0] = trackController.GetPos(exits[targInd]);
+        if (exits[startInd].x == exits[targInd].x || exits[startInd].y == exits[targInd].y) {
             squareLength = 0.5f;
             curved = false;
         }
@@ -72,7 +115,7 @@ public class TrainMover : MonoBehaviour {
             //lindir = -1;
             //Debug.Log("switch dir?");
             positions[4] = positions[0];
-            positions[0] = trackController.GetPos(exits[0]);
+            positions[0] = trackController.GetPos(exits[startInd]);
             //squareDist += squareLength;
             //trackDirection *= -1;
             //speed *= -1;
@@ -80,6 +123,7 @@ public class TrainMover : MonoBehaviour {
         positions[1] = (positions[0] + positions[2]) / 2f;
         positions[3] = (positions[4] + positions[2]) / 2f;
         trackDirection = (positions[3] - positions[1]);
+        nextDirection = (positions[4] - positions[2]).normalized;
         if (forward)
         {
             squareDist -= squareLength;
@@ -87,7 +131,11 @@ public class TrainMover : MonoBehaviour {
         else {
             squareDist += squareLength;
         }
-        Debug.Log(positions[0] + " " + positions[2] + " " + positions[4]);
+        /*if (showMessages)
+        {
+            Debug.Log(trackDirection);
+            Debug.Log(positions[0] + " " + positions[2] + " " + positions[4]);
+        }*/
         if (curved) {
             pivot = (positions[0] + positions[4]) / 2f;
         }
@@ -116,10 +164,10 @@ public class TrainMover : MonoBehaviour {
             squareDist += Time.deltaTime * speed;
             currentDist += Time.deltaTime * speed;
         }
-        else {
+        /*else {
             squareDist -= Time.deltaTime * speed;
             currentDist -= Time.deltaTime * speed;
-        }
+        }*/
         //Debug.Log(lindir+ " "+ trainDirection);
         UpdatePosition();
         if (squareDist > squareLength)
@@ -135,6 +183,7 @@ public class TrainMover : MonoBehaviour {
         }
         if (prevCar != null) {
             prevCar.SetBackDist(currentDist, prevCarDist);
+            prevCar.SetStats(speed, turnAngle);
             if (trainSprite != null) {
                 trainSprite.transform.position = transform.position;
                 trainSprite.transform.rotation =
@@ -144,4 +193,8 @@ public class TrainMover : MonoBehaviour {
             }
         }
 	}
+    public void SetStats(float spd, float ang) {
+        speed = spd;
+        turnAngle = ang;
+    }
 }

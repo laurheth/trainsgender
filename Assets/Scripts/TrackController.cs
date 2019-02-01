@@ -25,13 +25,13 @@ public class TrackController : MonoBehaviour {
         TileBase tile = GetTile(mouseposInt);
         //Vector3 rotation = TileRotation(mouseposInt);
         if (tile != null) {
-            Debug.Log(tile.name);
-            Debug.Log(mouseposInt);
+            //Debug.Log(tile.name);
+            //Debug.Log(mouseposInt);
             //Debug.Log(rotation);
             Vector3Int[] exits = ValidExits(mousepos,direction);
             if (exits != null && exits.Length>0) {
                 for (int i = 0; i < exits.Length;i++) {
-                    Debug.Log(exits[i]);
+                    //Debug.Log(exits[i]);
                 }
             }
         }
@@ -89,14 +89,17 @@ public class TrackController : MonoBehaviour {
                     if (Vector3.Dot(rotation * (Vector3.left),direction) > 0.2) {
                         goto case "double_branchoff";
                     }
-                    else {
+                    if ((Vector3.Dot(rotation * (Vector3.left), direction) < -0.2)) {
                         goto case "straightrail";
+                    }
+                    else {
+                        goto case "turn";
                     }
                     break;
                 case "crossing":
                     toreturn = new Vector3Int[2];
-                    toreturn[0] = pos + Vector3Int.RoundToInt(direction);
-                    toreturn[1] = pos - Vector3Int.RoundToInt(direction);
+                    toreturn[0] = pos + Vector3Int.RoundToInt(direction.normalized);
+                    toreturn[1] = pos - Vector3Int.RoundToInt(direction.normalized);
                     break;
                 default:
                     toreturn = null;
