@@ -6,6 +6,7 @@ public class TrainMover : MonoBehaviour {
     public GameObject trackObj;
     public GameObject prevCarObj;
     public float prevCarDist;
+    public GameObject trainSprite;
     float currentDist;
     float distCorrect;
     TrainMover prevCar;
@@ -115,6 +116,10 @@ public class TrainMover : MonoBehaviour {
             squareDist += Time.deltaTime * speed;
             currentDist += Time.deltaTime * speed;
         }
+        else {
+            squareDist -= Time.deltaTime * speed;
+            currentDist -= Time.deltaTime * speed;
+        }
         //Debug.Log(lindir+ " "+ trainDirection);
         UpdatePosition();
         if (squareDist > squareLength)
@@ -130,6 +135,13 @@ public class TrainMover : MonoBehaviour {
         }
         if (prevCar != null) {
             prevCar.SetBackDist(currentDist, prevCarDist);
+            if (trainSprite != null) {
+                trainSprite.transform.position = transform.position;
+                trainSprite.transform.rotation =
+                               Quaternion.LookRotation(Vector3.forward,
+                                                       Quaternion.Euler(0,0,90)*(prevCarObj.transform.position
+                                                                                 - transform.position));
+            }
         }
 	}
 }
