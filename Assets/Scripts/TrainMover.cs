@@ -49,7 +49,7 @@ public class TrainMover : MonoBehaviour {
 	
     void DefineTile(Vector3 enterDirection, bool forward=true) {
         Vector3Int[] exits = trackController.ValidExits(transform.position,
-                                                        nextDirection);
+                                                        enterDirection);
         if (showMessages) {
             string msg = "";
             for (int i = 0; i < exits.Length;i++) {
@@ -65,7 +65,7 @@ public class TrainMover : MonoBehaviour {
         int[] minDists={0,0}; // 0 is start, 1 is end. Indices.
         // Determine relevant exits
         Vector3 checkAheadVector = (enterDirection.normalized
-                                  + Quaternion.Euler(0, 0, turnAngle) * enterDirection.normalized);
+                                  + Quaternion.Euler(0, 0, -Mathf.Sign(speed)*turnAngle) * enterDirection.normalized);
         for (int j = 0; j < 2; j++)
         {
             for (int i = 0; i < exits.Length; i++)
@@ -160,11 +160,11 @@ public class TrainMover : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        if (distCorrect>Time.deltaTime*speed) {
+        if (Mathf.Sign(speed)*(Mathf.Sign(speed)*distCorrect-Time.deltaTime*speed)>0) {
             squareDist += 2f*Time.deltaTime * speed;
             currentDist += 2f*Time.deltaTime * speed;
         }
-        else if (distCorrect>-Time.deltaTime*speed) {
+        else if (Mathf.Sign(speed)*(distCorrect + Time.deltaTime*speed) > 0) {
             squareDist += Time.deltaTime * speed;
             currentDist += Time.deltaTime * speed;
         }
@@ -182,7 +182,7 @@ public class TrainMover : MonoBehaviour {
         }
         else if (squareDist < -squareLength) {
             squareDist += squareLength;
-            DefineTile(trackDirection,false);
+            DefineTile(-nextDirection,false);
             UpdatePosition();
         }
         if (prevCar != null) {
