@@ -55,19 +55,23 @@ public class TrainMover : MonoBehaviour {
             for (int i = 0; i < exits.Length;i++) {
                 msg += exits[i];
             }
+            Debug.Log(transform.position);
+            Debug.Log(enterDirection.normalized);
+            Debug.Log(enterDirection.normalized+transform.position+ Quaternion.Euler(0, 0, turnAngle) * enterDirection.normalized);
             Debug.Log(msg);
         }
         int startInd=0;
         int targInd=exits.Length-1;
         int[] minDists={0,0}; // 0 is start, 1 is end. Indices.
         // Determine relevant exits
+        Vector3 checkAheadVector = (enterDirection.normalized
+                                  + Quaternion.Euler(0, 0, turnAngle) * enterDirection.normalized);
         for (int j = 0; j < 2; j++)
         {
             for (int i = 0; i < exits.Length; i++)
             {
-                if ((transform.position - exits[i] + j*(nextDirection.normalized
-                                                       +Quaternion.Euler(0,0,turnAngle)*nextDirection.normalized)).sqrMagnitude < 
-                    (transform.position - exits[minDists[j]] + j * trackDirection.normalized).sqrMagnitude) {
+                if ((transform.position - trackController.GetPos(exits[i]) + j*(checkAheadVector)).sqrMagnitude < 
+                    (transform.position - trackController.GetPos(exits[minDists[j]]) + j * (checkAheadVector)).sqrMagnitude ) {
                     if (j>0 && i == minDists[0]) {
                         continue;
                     }
@@ -173,12 +177,12 @@ public class TrainMover : MonoBehaviour {
         if (squareDist > squareLength)
         {
             squareDist -= squareLength;
-            DefineTile(trainDirection);
+            DefineTile(nextDirection);
             UpdatePosition();
         }
         else if (squareDist < -squareLength) {
             squareDist += squareLength;
-            DefineTile(trainDirection,false);
+            DefineTile(trackDirection,false);
             UpdatePosition();
         }
         if (prevCar != null) {

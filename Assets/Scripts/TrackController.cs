@@ -65,6 +65,7 @@ public class TrackController : MonoBehaviour {
         TileBase tiletype = GetTile(pos);
         Quaternion rotation = TileRotation(pos);
         Vector3Int[] toreturn=null;
+        float flip = 1;
         if (tiletype != null)
         {
             switch (tiletype.name)
@@ -77,25 +78,27 @@ public class TrackController : MonoBehaviour {
                 case "turn":
                     toreturn = new Vector3Int[2];
                     toreturn[0] = pos + Vector3Int.RoundToInt(rotation * (Vector3.up));
-                    toreturn[1] = pos + Vector3Int.RoundToInt(rotation * (Vector3.right));
+                    toreturn[1] = pos + Vector3Int.RoundToInt(rotation * (flip*Vector3.right));
                     break;
                 case "double_branchoff":
                     toreturn = new Vector3Int[3];
                     toreturn[0] = pos + Vector3Int.RoundToInt(rotation * (Vector3.left));
-                    toreturn[1] = pos + Vector3Int.RoundToInt(rotation * (Vector3.up));
+                    toreturn[1] = pos + Vector3Int.RoundToInt(rotation * (flip*Vector3.up));
                     toreturn[2] = pos + Vector3Int.RoundToInt(rotation * (Vector3.right));
                     break;
+                case "leftbranch":
+                    flip = -1;
+                    goto case "branchoff";
                 case "branchoff":
-                    if (Vector3.Dot(rotation * (Vector3.left),direction) > 0.2) {
+                    if (Vector3.Dot(rotation * (Vector3.left),direction) > 0.2*flip) {
                         goto case "double_branchoff";
                     }
-                    if ((Vector3.Dot(rotation * (Vector3.left), direction) < -0.2)) {
+                    if ((Vector3.Dot(rotation * (Vector3.left), direction) < -0.2*flip)) {
                         goto case "straightrail";
                     }
                     else {
                         goto case "turn";
                     }
-                    break;
                 case "crossing":
                     toreturn = new Vector3Int[2];
                     toreturn[0] = pos + Vector3Int.RoundToInt(direction.normalized);
