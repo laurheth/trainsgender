@@ -146,6 +146,8 @@ MonoBehaviour:
   prevCarDist: 0.7
   trainSprite: {fileID: 1350918506}
   showMessages: 0
+  head: 0
+  currentDist: 0
   trainDirection: {x: 0, y: 0, z: 0}
   speed: 0
   turnAngle: 0
@@ -241,6 +243,8 @@ MonoBehaviour:
   prevCarDist: 0.4
   trainSprite: {fileID: 1287305041}
   showMessages: 0
+  head: 0
+  currentDist: 0
   trainDirection: {x: 0, y: 0, z: 0}
   speed: 0
   turnAngle: 0
@@ -336,6 +340,8 @@ MonoBehaviour:
   prevCarDist: 0.4
   trainSprite: {fileID: 0}
   showMessages: 0
+  head: 0
+  currentDist: 0
   trainDirection: {x: 0, y: 0, z: 0}
   speed: 0
   turnAngle: 0
@@ -624,6 +630,8 @@ MonoBehaviour:
   prevCarDist: 0.7
   trainSprite: {fileID: 530644760}
   showMessages: 0
+  head: 0
+  currentDist: 0
   trainDirection: {x: 0, y: 0, z: 0}
   speed: 0
   turnAngle: 0
@@ -944,6 +952,8 @@ MonoBehaviour:
   prevCarDist: 0.4
   trainSprite: {fileID: 2013929283}
   showMessages: 0
+  head: 0
+  currentDist: 0
   trainDirection: {x: 0, y: 0, z: 0}
   speed: 0
   turnAngle: 0
@@ -1769,6 +1779,8 @@ MonoBehaviour:
   prevCarDist: 0.7
   trainSprite: {fileID: 771692118}
   showMessages: 1
+  head: 1
+  currentDist: 0
   trainDirection: {x: 0, y: 0, z: 0}
   speed: 0
   turnAngle: 0
