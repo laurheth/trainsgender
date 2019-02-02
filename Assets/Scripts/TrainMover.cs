@@ -22,6 +22,7 @@ public class TrainMover : MonoBehaviour {
     Vector3 pivot;
     Vector3 trackDirection;
     Vector3 nextDirection;
+    Vector3 nextDirectionRev;
     public float turnAngle;
 	// Use this for initialization
 	void Start () {
@@ -39,6 +40,7 @@ public class TrainMover : MonoBehaviour {
         }
         trackDirection = Vector3.zero;
         nextDirection = Vector3.zero;
+        nextDirectionRev = Vector3.zero;
 	}
 
     public void SetBackDist(float headDist, float backDist) {
@@ -128,6 +130,7 @@ public class TrainMover : MonoBehaviour {
         positions[3] = (positions[4] + positions[2]) / 2f;
         trackDirection = (positions[3] - positions[1]);
         nextDirection = (positions[4] - positions[2]).normalized;
+        nextDirectionRev = (positions[0] - positions[2]).normalized;
         if (forward)
         {
             squareDist -= squareLength;
@@ -160,7 +163,7 @@ public class TrainMover : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        if (Mathf.Sign(speed)*(Mathf.Sign(speed)*distCorrect-Time.deltaTime*speed)>0) {
+        if (Mathf.Sign(speed)*(distCorrect-Time.deltaTime*speed)>0) {
             squareDist += 2f*Time.deltaTime * speed;
             currentDist += 2f*Time.deltaTime * speed;
         }
@@ -182,7 +185,7 @@ public class TrainMover : MonoBehaviour {
         }
         else if (squareDist < -squareLength) {
             squareDist += squareLength;
-            DefineTile(-nextDirection,false);
+            DefineTile(nextDirectionRev,false);
             UpdatePosition();
         }
         if (prevCar != null) {
