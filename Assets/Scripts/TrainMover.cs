@@ -237,7 +237,7 @@ public partial class TrainMover : MonoBehaviour {
 	void Update () {
         if (FindPathToTarget) {
             FindPathToTarget = false;
-            speed = 1;
+            speed = Mathf.Abs(speed);
             FindPath(Target, Vector3Int.RoundToInt(nextDirection.normalized));
         }
         if (!Mathf.Approximately(Mathf.Sign(speed),Mathf.Sign(lastSpeed))) {

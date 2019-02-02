@@ -29,8 +29,13 @@ public partial class TrainMover : MonoBehaviour {
                                     ClosedList[0], target));
             }
             else {
+                if (OpenList.Count==0) {
+                    break;
+                }
                 ClosedList.Add(OpenList[0]);
                 OpenList.RemoveAt(0);
+                startDirection = ClosedList[ClosedList.Count - 1].GetPos()
+                                                    - ClosedList[ClosedList.Count - 1].GetPrevious().GetPos();
             }
             exits = trackController.ValidExits(ClosedList[ClosedList.Count-1].GetPos(), startDirection);
             for (i = 0; i < exits.Length;i++) {
@@ -45,14 +50,23 @@ public partial class TrainMover : MonoBehaviour {
 
         if (ClosedList.Contains(targetTile)) {
             PathTile thisTile = ClosedList[ClosedList.Count - 1];
+            Vector3Int ForwardDir;
+            float angle = 0;
             breaker = 0;
             string msg="";
-            while (thisTile!=ClosedList[0] && breaker<1000) {
+            while (thisTile.GetPrevious()!=null && breaker<1000) {
                 msg += thisTile.GetPos();
+                ForwardDir = thisTile.GetPos();
+                turnLog.Add(thisTile.GetPos(), angle);
                 thisTile = thisTile.GetPrevious();
+                if (thisTile.GetPrevious()!=null) {
+                    angle = Vector3.SignedAngle(thisTile.GetPos() - thisTile.GetPrevious().GetPos(),
+                                              ForwardDir - thisTile.GetPos(), Vector3.back);
+                }
+                breaker++;
             }
             Debug.Log(msg);
-            breaker++;
+
         }
     }
 
