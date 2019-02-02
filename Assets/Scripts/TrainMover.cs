@@ -20,21 +20,27 @@ public class TrainMover : MonoBehaviour {
     float lindir;
     float TotalLength;
     public float speed;
+    float lastSpeed;
     bool curved;
     Vector3 pivot;
     Vector3 trackDirection;
     Vector3 nextDirection;
     Vector3 nextDirectionRev;
-    List<float[]> turnLog;
+    Dictionary<Vector3Int, float> turnLog;
     public float turnAngle;
     int i, j;
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    private void Awake()
+    {
+        turnLog = null;
+    }
+    void Start () {
         lindir = 1f;
         curved = false;
         trackController = trackObj.GetComponent<TrackController>();
         squareDist = 0f;
         speed = 1f;
+        lastSpeed = speed;
         positions = new Vector3[5];
         pivot = Vector3.zero;
         DefineTile(trackController.TileRotation(trackController.GetPosInt(transform.position))*Vector3.left);
@@ -47,10 +53,9 @@ public class TrainMover : MonoBehaviour {
         nextDirectionRev = Vector3.zero;
         if (head)
         {
-            turnLog = new List<float[]>();
-            turnLog.Add(new float[2]);
-            turnLog[0][0] = currentDist;
-            turnLog[0][1] = turnAngle;
+            turnLog = new Dictionary<Vector3Int, float>();
+            turnLog.Add(trackController.GetPosInt(transform.position),turnAngle);
+            //turnLog.Add(turnAngle);
             if (prevCar != null) {
                 prevCar.PassDownTurnLog(turnLog);
             }
@@ -58,10 +63,11 @@ public class TrainMover : MonoBehaviour {
         TotalLength = GetLength()+0.5f;
 	}
 
-    public void PassDownTurnLog(List<float[]> turnListRef) {
-        turnLog = turnListRef;
+    public void PassDownTurnLog(Dictionary<Vector3Int,float> turnDictRef) {
+        turnLog = turnDictRef;
+        //turnLog = turnListRefAngles;
         if (prevCar != null) {
-            prevCar.PassDownTurnLog(turnListRef);
+            prevCar.PassDownTurnLog(turnDictRef);
         }
     }
 
@@ -81,51 +87,82 @@ public class TrainMover : MonoBehaviour {
     }
 	
     void DefineTile(Vector3 enterDirection, bool forward=true) {
-        Vector3Int[] exits = trackController.ValidExits(transform.position,
-                                                        enterDirection);
+        Vector3Int[] exits;
+        //float turnAngleOverride = turnAngle;
+        positions[2] = trackController.GetPos(transform.position);
+        //int turnLogIndex = -1;//turnLog.(trackController.GetPosInt(transform.position));
+        //float useTurn = 1;
+        //bool noSwitch = false;
+        if (turnLog != null)
+        {
+            if (turnLog.ContainsKey(trackController.GetPosInt(transform.position))) {
+                turnAngle = turnLog[trackController.GetPosInt(transform.position)];
+                if ((speed>0 && prevCar==null) || (speed < 0 && head)) {
+                    turnLog.Remove(trackController.GetPosInt(transform.position));
+                }
+            }
+            else {
+                if ((speed > 0 && head) || (speed < 0 && prevCar==null))
+                {
+                    turnLog.Add(trackController.GetPosInt(transform.position), turnAngle);
+                }
+            }
+        }
+
+        exits = trackController.ValidExits(transform.position, enterDirection);
+
         if (showMessages) {
             string msg = "";
             for (i = 0; i < exits.Length;i++) {
                 msg += exits[i];
             }
-            Debug.Log(transform.position);
-            Debug.Log(enterDirection.normalized);
-            Debug.Log(enterDirection.normalized+transform.position+ Quaternion.Euler(0, 0, turnAngle) * enterDirection.normalized);
-            Debug.Log(msg);
+            //Debug.Log(transform.position);
+            //Debug.Log(enterDirection.normalized);
+            //Debug.Log(enterDirection.normalized+transform.position+ Quaternion.Euler(0, 0, turnAngle) * enterDirection.normalized);
+            //Debug.Log(gameObject.name + " " +msg);
+            //Debug.Log(positions[2]);
         }
+
         int startInd=0;
         int targInd=exits.Length-1;
-        int[] minDists={0,0}; // 0 is start, 1 is end. Indices.
-        // Determine relevant exits
+
+
+        int[] minDists = { 0, 0 }; // 0 is start, 1 is end. Indices.
+                                   // Determine relevant exits
         Vector3 checkAheadVector = (enterDirection.normalized
-                                  + Quaternion.Euler(0, 0, -Mathf.Sign(speed)*turnAngle) * enterDirection.normalized);
+                                  + Quaternion.Euler(0, 0, -Mathf.Sign(speed) * turnAngle) * enterDirection.normalized);
         for (j = 0; j < 2; j++)
         {
             for (i = 0; i < exits.Length; i++)
             {
-                if ((transform.position - trackController.GetPos(exits[i]) + j*(checkAheadVector)).sqrMagnitude < 
-                    (transform.position - trackController.GetPos(exits[minDists[j]]) + j * (checkAheadVector)).sqrMagnitude ) {
-                    if (j>0 && i == minDists[0]) {
+                if ((transform.position - trackController.GetPos(exits[i]) + j * (checkAheadVector)).sqrMagnitude <
+                    (transform.position - trackController.GetPos(exits[minDists[j]]) + j * (checkAheadVector)).sqrMagnitude)
+                {
+                    if (j > 0 && i == minDists[0])
+                    {
                         continue;
                     }
                     minDists[j] = i;
                 }
             }
-            if (j==0 && minDists[0]==0) {
+            if (j == 0 && minDists[0] == 0)
+            {
                 minDists[1] = 1;
             }
         }
         startInd = minDists[0];
         targInd = minDists[1];
-        if (startInd==targInd) {
+        if (startInd == targInd)
+        {
             startInd = 0;
             targInd = exits.Length - 1;
         }
+        
         /*if (showMessages) {
             Debug.Log(startInd + " " + targInd);
         }*/
         //transform.position = positions[1];
-        positions[2] = trackController.GetPos(transform.position);
+
         positions[4] = trackController.GetPos(exits[startInd]);
         positions[0] = trackController.GetPos(exits[targInd]);
         if (exits[startInd].x == exits[targInd].x || exits[startInd].y == exits[targInd].y) {
@@ -141,7 +178,7 @@ public class TrainMover : MonoBehaviour {
                                             * Vector3.left;*/
         //speed = Mathf.Abs(speed);
         bool startbool=((positions[4] - transform.position).sqrMagnitude) > ((positions[0] - transform.position).sqrMagnitude);
-        if (startbool == forward)
+        if ((startbool == forward))
         //if (Vector3.Dot(enterDirection,trackController.TileRotation(trackController.GetPosInt(positions[1]))
         //                *Vector3.left) >= -.3)
         {
@@ -177,6 +214,7 @@ public class TrainMover : MonoBehaviour {
         if (curved) {
             pivot = (positions[0] + positions[4]) / 2f;
         }
+
     }
 
     void UpdatePosition() {
@@ -195,6 +233,13 @@ public class TrainMover : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         
+        if (!Mathf.Approximately(Mathf.Sign(speed),Mathf.Sign(lastSpeed))) {
+            lastSpeed = speed;
+            if ((speed < 0 && head) || (speed>0 && prevCar==null)) {
+                turnLog.Remove(trackController.GetPosInt(transform.position));
+            }
+        }
+
         if (Mathf.Sign(speed)*(distCorrect-Time.deltaTime*speed)>0) {
             squareDist += 2f*Time.deltaTime * speed;
             currentDist += 2f*Time.deltaTime * speed;
@@ -208,61 +253,7 @@ public class TrainMover : MonoBehaviour {
             currentDist -= Time.deltaTime * speed;
         }*/
         //Debug.Log(lindir+ " "+ trainDirection);
-        if (head) {
-            // Remove indices ahead of head or behind tail
-            if (showMessages) {
-                string msg = "";
-                for (i = 0; i < turnLog.Count;i++) {
-                    msg += turnLog[i][0]+","+turnLog[i][1]+" ";
-                }
-                Debug.Log(msg);
-            }
-            if (turnLog.Count == 1 && speed > 0)
-            {
-                if (Mathf.Approximately(turnLog[0][1], turnAngle))
-                {
-                    turnLog[0][0] = currentDist-TotalLength+0.1f;
-                }
-                else
-                {
-                    turnLog.Add(new float[2]);
-                    turnLog[0][0] = currentDist - Time.deltaTime * speed;
-                    turnLog[1][0] = currentDist;
-                    turnLog[1][1] = turnAngle;
-                }
-            }
-            else if (speed > 0)
-            {
-                if (!Mathf.Approximately(turnLog[turnLog.Count-1][1], turnAngle)) {
-                    turnLog.Add(new float[2]);
-                    turnLog[turnLog.Count - 1][0] = currentDist;
-                    turnLog[turnLog.Count - 1][1] = turnAngle;
-                }
-            }
-            else if (speed < 0)
-            {
-                if (turnLog[turnLog.Count - 1][0] < currentDist)
-                {
-                    turnAngle = turnLog[turnLog.Count - 1][1];
-                }
-            }
 
-            while (turnLog.Count > 1 && turnLog[turnLog.Count - 1][0] > currentDist)
-            {
-                turnLog.RemoveAt(turnLog.Count - 1);
-            }
-            while (turnLog.Count > 1 && turnLog[0][0] < currentDist - TotalLength)
-            {
-                turnLog.RemoveAt(0);
-            }
-        }
-        else {
-            for (i = 0; i < turnLog.Count;i++) {
-                if (turnLog[i][0]<currentDist) {
-                    turnAngle = turnLog[i][1];
-                }
-            }
-        }
 
         UpdatePosition();
         if (squareDist > squareLength)
