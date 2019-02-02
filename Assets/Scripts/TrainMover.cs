@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TrainMover : MonoBehaviour {
+public partial class TrainMover : MonoBehaviour {
     public GameObject trackObj;
     public GameObject prevCarObj;
     public float prevCarDist;
