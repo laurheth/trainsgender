@@ -10,6 +10,8 @@ public partial class TrainMover : MonoBehaviour {
     public bool showMessages;
     public bool head;
     public float currentDist;
+    public Vector3Int Target;
+    public bool FindPathToTarget;
     float distCorrect;
     TrainMover prevCar;
     TrackController trackController;
@@ -35,6 +37,7 @@ public partial class TrainMover : MonoBehaviour {
         turnLog = null;
     }
     void Start () {
+        FindPathToTarget = false;
         lindir = 1f;
         curved = false;
         trackController = trackObj.GetComponent<TrackController>();
@@ -232,7 +235,11 @@ public partial class TrainMover : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        
+        if (FindPathToTarget) {
+            FindPathToTarget = false;
+            speed = 1;
+            FindPath(Target, Vector3Int.RoundToInt(nextDirection.normalized));
+        }
         if (!Mathf.Approximately(Mathf.Sign(speed),Mathf.Sign(lastSpeed))) {
             lastSpeed = speed;
             if ((speed < 0 && head) || (speed>0 && prevCar==null)) {
