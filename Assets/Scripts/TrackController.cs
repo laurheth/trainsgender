@@ -5,10 +5,13 @@ using UnityEngine.Tilemaps;
 
 public class TrackController : MonoBehaviour {
     Tilemap tilemap;
+    //GameObject underlayobj;
+    //Tilemap underlay;
     Grid grid;
     public GameObject gridObj;
     public GameObject camobj;
     public Vector3 direction;
+    Dictionary<Vector3Int, TrainStop> trainStops;
     Camera cam;
 	// Use this for initialization
 	void Awake () {
@@ -16,10 +19,41 @@ public class TrackController : MonoBehaviour {
         grid=gridObj.GetComponent<Grid>();
         cam = camobj.GetComponent<Camera>();
         //direction = Vector3.left;
+        trainStops = new Dictionary<Vector3Int, TrainStop>();
+
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("TrainStop"))
+        {
+            TrainStop newStop = obj.GetComponent<TrainStop>();
+            trainStops.Add(grid.WorldToCell(obj.transform.position), newStop);
+        }
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    /*private void Start()
+    {
+        underlay = underlayobj.GetComponent<Tilemap>();
+    }*/
+
+    public List<TrainStop> GetStops(TrainStop.StopType type) {
+        List<TrainStop> toreturn = new List<TrainStop>();
+        foreach (KeyValuePair<Vector3Int,TrainStop> stop in trainStops) {
+            if (stop.Value.GetStopType() == type) {
+                toreturn.Add(stop.Value);
+            }
+        }
+        return toreturn;
+    }
+
+    public TrainStop GetStop(Vector3Int position) {
+        if (trainStops.ContainsKey(position)) {
+            return trainStops[position];
+        }
+        else {
+            return null;
+        }
+    }
+
+    // Update is called once per frame
+    void Update () {
         Vector3 mousepos = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
         Vector3Int mouseposInt = grid.WorldToCell(mousepos);
         TileBase tile = GetTile(mouseposInt);
@@ -77,8 +111,8 @@ public class TrackController : MonoBehaviour {
                     break;
                 case "turn":
                     toreturn = new Vector3Int[2];
-                    toreturn[0] = pos + Vector3Int.RoundToInt(rotation * (Vector3.up));
-                    toreturn[1] = pos + Vector3Int.RoundToInt(rotation * (flip*Vector3.right));
+                    toreturn[0] = pos + Vector3Int.RoundToInt(rotation * (flip*Vector3.up));
+                    toreturn[1] = pos + Vector3Int.RoundToInt(rotation * (Vector3.right));
                     break;
                 case "double_branchoff":
                     toreturn = new Vector3Int[3];
@@ -90,10 +124,10 @@ public class TrackController : MonoBehaviour {
                     flip = -1;
                     goto case "branchoff";
                 case "branchoff":
-                    if (Vector3.Dot(rotation * (Vector3.left),direction) > 0.2*flip) {
+                    if (Vector3.Dot(rotation * (Vector3.left),direction) > 0.2) {
                         goto case "double_branchoff";
                     }
-                    if ((Vector3.Dot(rotation * (Vector3.left), direction) < -0.2*flip)) {
+                    if ((Vector3.Dot(rotation * (Vector3.left), direction) < -0.2)) {
                         goto case "straightrail";
                     }
                     else {

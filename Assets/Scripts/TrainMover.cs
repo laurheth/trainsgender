@@ -24,16 +24,25 @@ public partial class TrainMover : MonoBehaviour {
     public float speed;
     float lastSpeed;
     bool curved;
+    bool pickingUp;
     Vector3 pivot;
     Vector3 trackDirection;
     Vector3 nextDirection;
     Vector3 nextDirectionRev;
-    Dictionary<Vector3Int, float> turnLog;
+    Dictionary<TurnKey, float> turnLog;
     public float turnAngle;
     int i, j;
+
+    TrainStop TargetStop;
+    List<TrainStop> pickups;
+    List<TrainStop> dropoffs;
+
     // Use this for initialization
     private void Awake()
     {
+        TargetStop = null;
+        pickups = null;
+        dropoffs = null;
         turnLog = null;
     }
     void Start () {
@@ -42,7 +51,7 @@ public partial class TrainMover : MonoBehaviour {
         curved = false;
         trackController = trackObj.GetComponent<TrackController>();
         squareDist = 0f;
-        speed = 1f;
+        speed = 4f;
         lastSpeed = speed;
         positions = new Vector3[5];
         pivot = Vector3.zero;
@@ -56,17 +65,36 @@ public partial class TrainMover : MonoBehaviour {
         nextDirectionRev = Vector3.zero;
         if (head)
         {
-            turnLog = new Dictionary<Vector3Int, float>();
-            turnLog.Add(trackController.GetPosInt(transform.position),turnAngle);
+            turnLog = new Dictionary<TurnKey, float>();
+            turnLog.Add(new TurnKey(trackController.GetPosInt(transform.position),Vector3Int.zero),turnAngle);
             //turnLog.Add(turnAngle);
             if (prevCar != null) {
                 prevCar.PassDownTurnLog(turnLog);
             }
         }
         TotalLength = GetLength()+0.5f;
+        pickups = trackController.GetStops(TrainStop.StopType.pickUp);
+        dropoffs = trackController.GetStops(TrainStop.StopType.dropOff);
+        SetTargetStop(pickups[0]);
+        pickingUp = true;
 	}
 
-    public void PassDownTurnLog(Dictionary<Vector3Int,float> turnDictRef) {
+    public struct TurnKey {
+        public readonly Vector3Int position;
+        public readonly Vector3Int direction;
+        public TurnKey (Vector3Int p1, Vector3Int p2) {
+            position = p1;
+            direction = p2;
+        }
+    }
+
+    void SetTargetStop(TrainStop stop) {
+        TargetStop = stop;
+        Target = stop.GridPosition();
+        FindPathToTarget = true;
+    }
+
+    public void PassDownTurnLog(Dictionary<TurnKey,float> turnDictRef) {
         turnLog = turnDictRef;
         //turnLog = turnListRefAngles;
         if (prevCar != null) {
@@ -98,16 +126,17 @@ public partial class TrainMover : MonoBehaviour {
         //bool noSwitch = false;
         if (turnLog != null)
         {
-            if (turnLog.ContainsKey(trackController.GetPosInt(transform.position))) {
-                turnAngle = turnLog[trackController.GetPosInt(transform.position)];
+            TurnKey thisKey = new TurnKey(trackController.GetPosInt(transform.position), Vector3Int.RoundToInt(enterDirection));
+            if (turnLog.ContainsKey(thisKey)) {
+                turnAngle = turnLog[thisKey];
                 if ((speed>0 && prevCar==null) || (speed < 0 && head)) {
-                    turnLog.Remove(trackController.GetPosInt(transform.position));
+                    turnLog.Remove(thisKey);
                 }
             }
             else {
                 if ((speed > 0 && head) || (speed < 0 && prevCar==null))
                 {
-                    turnLog.Add(trackController.GetPosInt(transform.position), turnAngle);
+                    turnLog.Add(thisKey, turnAngle);
                 }
             }
         }
@@ -235,15 +264,29 @@ public partial class TrainMover : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        if (FindPathToTarget) {
+        if (FindPathToTarget && head && currentDist>TotalLength) {
             FindPathToTarget = false;
             speed = Mathf.Abs(speed);
             FindPath(Target, Vector3Int.RoundToInt(nextDirection.normalized));
         }
+        if (head && trackController.GetPosInt(transform.position)==Target) {
+            if (pickingUp) {
+                pickingUp = false;
+                SetTargetStop(dropoffs[0]);
+            }
+            else {
+                pickingUp = true;
+                SetTargetStop(pickups[0]);
+            }
+        }
+
         if (!Mathf.Approximately(Mathf.Sign(speed),Mathf.Sign(lastSpeed))) {
             lastSpeed = speed;
-            if ((speed < 0 && head) || (speed>0 && prevCar==null)) {
-                turnLog.Remove(trackController.GetPosInt(transform.position));
+            if (speed < 0 && head) {
+                turnLog.Remove(new TurnKey(trackController.GetPosInt(transform.position), Vector3Int.RoundToInt(nextDirectionRev)));
+            }
+            else if (speed > 0 && prevCar == null) {
+                turnLog.Remove(new TurnKey(trackController.GetPosInt(transform.position), Vector3Int.RoundToInt(nextDirection)));
             }
         }
 
