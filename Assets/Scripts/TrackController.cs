@@ -139,10 +139,12 @@ public class TrackController : MonoBehaviour
 
         public void Enter () {
             passable = false;
+            SetStatus();
         }
 
         public void Exit () {
             passable = true;
+            SetStatus();
         }
 
         private void SetStatus() {

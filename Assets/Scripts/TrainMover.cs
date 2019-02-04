@@ -124,6 +124,17 @@ public partial class TrainMover : MonoBehaviour {
         //int turnLogIndex = -1;//turnLog.(trackController.GetPosInt(transform.position));
         //float useTurn = 1;
         //bool noSwitch = false;
+
+        if (trackController.GetStop(trackController.GetPosInt(transform.position)) != null) {
+            if (head)
+            {
+                trackController.GetStop(trackController.GetPosInt(transform.position)).Enter();
+            }
+            else if (prevCar==null) {
+                trackController.GetStop(trackController.GetPosInt(transform.position)).Exit();
+            }
+        }
+
         if (turnLog != null)
         {
             TurnKey thisKey = new TurnKey(trackController.GetPosInt(transform.position), Vector3Int.RoundToInt(enterDirection));
