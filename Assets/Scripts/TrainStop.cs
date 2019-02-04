@@ -9,8 +9,15 @@ public class TrainStop : MonoBehaviour {
     public StopType thisType;
     bool passable;
     SpriteRenderer sprite;
-	// Use this for initialization
-	void Start () {
+    TrackController.StopBlock IsExitFor;
+    TrackController.StopBlock IsEntryFor;
+    // Use this for initialization
+    private void Awake()
+    {
+        IsExitFor = null;
+        IsEntryFor = null;
+    }
+    void Start () {
         parentGrid = GetComponentInParent<Grid>();
         transform.position = parentGrid.GetCellCenterWorld(parentGrid.WorldToCell(transform.position));
         passable = true;
@@ -30,8 +37,35 @@ public class TrainStop : MonoBehaviour {
         return thisType;
     }
 
+    public void SetPassable(bool setTo) {
+        passable = setTo;
+        if (passable) {
+            sprite.color = Color.cyan;
+        }
+        else {
+            sprite.color = Color.red;
+        }
+    }
+
     public bool IsPassable() {
         return passable;
+    }
+
+    public void SetAsEntrance(TrackController.StopBlock newBlock) {
+        IsEntryFor = newBlock;
+    }
+
+    public void SetAsExit(TrackController.StopBlock newBlock)
+    {
+        IsExitFor = newBlock;
+    }
+
+    public void Enter () {
+        IsEntryFor.Enter();
+    }
+
+    public void Exit () {
+        IsExitFor.Exit();
     }
 
 }
