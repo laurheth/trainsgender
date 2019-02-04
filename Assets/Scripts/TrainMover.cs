@@ -12,6 +12,7 @@ public partial class TrainMover : MonoBehaviour {
     public float currentDist;
     public Vector3Int Target;
     public bool FindPathToTarget;
+    public Vector3Int TestPosition;
     float distCorrect;
     TrainMover prevCar;
     TrackController trackController;
@@ -22,6 +23,7 @@ public partial class TrainMover : MonoBehaviour {
     float lindir;
     float TotalLength;
     public float speed;
+    public float desiredSpeed;
     float lastSpeed;
     bool curved;
     bool pickingUp;
@@ -53,7 +55,7 @@ public partial class TrainMover : MonoBehaviour {
         curved = false;
         trackController = trackObj.GetComponent<TrackController>();
         squareDist = 0f;
-        speed = 4f;
+        speed = desiredSpeed;
         lastSpeed = speed;
         positions = new Vector3[5];
         pivot = Vector3.zero;
@@ -70,9 +72,7 @@ public partial class TrainMover : MonoBehaviour {
             turnLog = new Dictionary<TurnKey, float>();
             turnLog.Add(new TurnKey(trackController.GetPosInt(transform.position),Vector3Int.zero),turnAngle);
             //turnLog.Add(turnAngle);
-            if (prevCar != null) {
-                prevCar.PassDownTurnLog(turnLog);
-            }
+
         }
         TotalLength = GetLength()+0.5f;
         pickups = trackController.GetStops(TrainStop.StopType.pickUp);
@@ -126,27 +126,18 @@ public partial class TrainMover : MonoBehaviour {
         //int turnLogIndex = -1;//turnLog.(trackController.GetPosInt(transform.position));
         //float useTurn = 1;
         //bool noSwitch = false;
-
-        if (trackController.GetStop(trackController.GetPosInt(transform.position)) != null) {
-            if (head)
-            {
-                if (trackController.GetStop(trackController.GetPosInt(transform.position)).IsPassable())
-                {
-                    trackController.GetStop(trackController.GetPosInt(transform.position)).Enter();
-                }
-                else {
-                    speed = 0;
-                    StoppedBySignal = trackController.GetStop(trackController.GetPosInt(transform.position));
-                }
-            }
-            else if (prevCar==null) {
-                trackController.GetStop(trackController.GetPosInt(transform.position)).Exit();
-            }
+        if (showMessages && trackController.GetPosInt(transform.position) == TestPosition)
+        {
+            Debug.Log(Vector3Int.RoundToInt(enterDirection));
+            Debug.Log(speed);
+            Debug.Log(head);
+            Debug.Log(prevCar == null);
+            //Debug.Log(turnLog[thisKey]);
         }
-
         if (turnLog != null)
         {
             TurnKey thisKey = new TurnKey(trackController.GetPosInt(transform.position), Vector3Int.RoundToInt(enterDirection));
+
             if (turnLog.ContainsKey(thisKey)) {
                 turnAngle = turnLog[thisKey];
                 if ((speed>0 && prevCar==null) || (speed < 0 && head)) {
@@ -266,7 +257,26 @@ public partial class TrainMover : MonoBehaviour {
         if (curved) {
             pivot = (positions[0] + positions[4]) / 2f;
         }
-
+        if (trackController.GetStop(trackController.GetPosInt(transform.position)) != null)
+        {
+            if (head)
+            {
+                if (trackController.GetStop(trackController.GetPosInt(transform.position)).IsPassable())
+                {
+                    trackController.GetStop(trackController.GetPosInt(transform.position)).Enter();
+                }
+                else
+                {
+                    Debug.Log("Stop??");
+                    speed = 0f;
+                    StoppedBySignal = trackController.GetStop(trackController.GetPosInt(transform.position));
+                }
+            }
+            else if (prevCar == null)
+            {
+                trackController.GetStop(trackController.GetPosInt(transform.position)).Exit();
+            }
+        }
     }
 
     void UpdatePosition() {
@@ -285,8 +295,8 @@ public partial class TrainMover : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         if (StoppedBySignal != null) {
-            if (StoppedBySignal.IsPassable() == false) {
-                speed = 4f;
+            if (StoppedBySignal.IsPassable() == true) {
+                speed = desiredSpeed;
             }
         }
         if (FindPathToTarget && head && currentDist>TotalLength) {
@@ -304,7 +314,13 @@ public partial class TrainMover : MonoBehaviour {
                 SetTargetStop(pickups[0]);
             }
         }
-
+        if (head && currentDist < TotalLength) {
+            if (prevCar != null)
+            {
+                prevCar.PassDownTurnLog(turnLog);
+            }
+        }
+        /*
         if (!Mathf.Approximately(Mathf.Sign(speed),Mathf.Sign(lastSpeed))) {
             lastSpeed = speed;
             if (speed < 0 && head) {
@@ -313,7 +329,7 @@ public partial class TrainMover : MonoBehaviour {
             else if (speed > 0 && prevCar == null) {
                 turnLog.Remove(new TurnKey(trackController.GetPosInt(transform.position), Vector3Int.RoundToInt(nextDirection)));
             }
-        }
+        }*/
 
         if (Mathf.Sign(speed)*(distCorrect-Time.deltaTime*speed)>0) {
             squareDist += 2f*Time.deltaTime * speed;

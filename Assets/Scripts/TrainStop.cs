@@ -16,8 +16,8 @@ public class TrainStop : MonoBehaviour {
     {
         IsExitFor = null;
         IsEntryFor = null;
-    }
-    void Start () {
+    //}
+    //void Start () {
         parentGrid = GetComponentInParent<Grid>();
         transform.position = parentGrid.GetCellCenterWorld(parentGrid.WorldToCell(transform.position));
         passable = true;
