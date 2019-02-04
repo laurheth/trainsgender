@@ -36,10 +36,12 @@ public partial class TrainMover : MonoBehaviour {
     TrainStop TargetStop;
     List<TrainStop> pickups;
     List<TrainStop> dropoffs;
+    TrainStop StoppedBySignal;
 
     // Use this for initialization
     private void Awake()
     {
+        StoppedBySignal = null;
         TargetStop = null;
         pickups = null;
         dropoffs = null;
@@ -128,7 +130,14 @@ public partial class TrainMover : MonoBehaviour {
         if (trackController.GetStop(trackController.GetPosInt(transform.position)) != null) {
             if (head)
             {
-                trackController.GetStop(trackController.GetPosInt(transform.position)).Enter();
+                if (trackController.GetStop(trackController.GetPosInt(transform.position)).IsPassable())
+                {
+                    trackController.GetStop(trackController.GetPosInt(transform.position)).Enter();
+                }
+                else {
+                    speed = 0;
+                    StoppedBySignal = trackController.GetStop(trackController.GetPosInt(transform.position));
+                }
             }
             else if (prevCar==null) {
                 trackController.GetStop(trackController.GetPosInt(transform.position)).Exit();
@@ -275,6 +284,11 @@ public partial class TrainMover : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+        if (StoppedBySignal != null) {
+            if (StoppedBySignal.IsPassable() == false) {
+                speed = 4f;
+            }
+        }
         if (FindPathToTarget && head && currentDist>TotalLength) {
             FindPathToTarget = false;
             speed = Mathf.Abs(speed);

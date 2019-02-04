@@ -7,7 +7,7 @@ public class TrainStop : MonoBehaviour {
     Grid parentGrid;
     public enum StopType { pickUp, dropOff, signal };
     public StopType thisType;
-    public bool passable;
+    bool passable;
     SpriteRenderer sprite;
     TrackController.StopBlock IsExitFor;
     TrackController.StopBlock IsEntryFor;
