@@ -45,6 +45,11 @@ public class TrackController : MonoBehaviour
     {
         List<TrainStop> SignalsEnter = GetStops(TrainStop.StopType.signal);
         List<TrainStop> SignalsExit = GetStops(TrainStop.StopType.signal);
+        GameObject[] trainChunks = GameObject.FindGameObjectsWithTag("TrainChunk");
+        List<Vector3Int> trainChunkPos = new List<Vector3Int>();
+        foreach (GameObject chunk in trainChunks) {
+            trainChunkPos.Add(GetPosInt(chunk.transform.position));
+        }
         int breaker = 0;
         List<Vector3Int> tiles = new List<Vector3Int>();
         while (breaker<1000 && SignalsEnter.Count>0) {
@@ -54,7 +59,7 @@ public class TrackController : MonoBehaviour
             tiles.Add(SignalsEnter[0].GridPosition());
             stopBlocks[stopBlocks.Count - 1].AddEntrance(SignalsEnter[0]);
             StopBlockIterate(SignalsEnter[0].GridPosition() + Vector3Int.RoundToInt(SignalsEnter[0].Direction()),
-                            tiles,SignalsEnter,SignalsExit, stopBlocks[stopBlocks.Count-1]);
+                            tiles,SignalsEnter,SignalsExit, stopBlocks[stopBlocks.Count-1],trainChunkPos);
             
             SignalsEnter.RemoveAt(0);
         }
@@ -66,9 +71,13 @@ public class TrackController : MonoBehaviour
     }
 
     void StopBlockIterate(Vector3Int thisPos, List<Vector3Int> donetiles,
-                          List<TrainStop> SignalsEnter,List<TrainStop> SignalsExit, StopBlock newBlock) {
+                          List<TrainStop> SignalsEnter,List<TrainStop> SignalsExit, StopBlock newBlock,
+                         List<Vector3Int> trainChunkPos) {
         //Debug.Log(thisPos);
         Vector3Int[] exits = ValidExits(thisPos,Vector3.zero,true);
+        if (trainChunkPos.Contains(thisPos)) {
+            newBlock.Enter();
+        }
         foreach (Vector3Int exit in exits) {
             if (!donetiles.Contains(exit)) {
                 donetiles.Add(exit);
@@ -96,7 +105,7 @@ public class TrackController : MonoBehaviour
                 }
 
                 if (IterateMore) {
-                    StopBlockIterate(exit, donetiles, SignalsEnter, SignalsExit, newBlock);
+                    StopBlockIterate(exit, donetiles, SignalsEnter, SignalsExit, newBlock,trainChunkPos);
                 }
             }
         }
