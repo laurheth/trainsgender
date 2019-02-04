@@ -24,6 +24,8 @@ public partial class TrainMover : MonoBehaviour {
     float TotalLength;
     public float speed;
     public float desiredSpeed;
+    public float maxSpeed;
+    public float acceleration;
     float lastSpeed;
     bool curved;
     bool pickingUp;
@@ -55,8 +57,12 @@ public partial class TrainMover : MonoBehaviour {
         curved = false;
         trackController = trackObj.GetComponent<TrackController>();
         squareDist = 0f;
-        speed = desiredSpeed;
+        speed = 0f;
+        acceleration = GetAcceleration(maxSpeed, speed);
+        //speed = desiredSpeed;
+        speed += acceleration;
         lastSpeed = speed;
+
         positions = new Vector3[5];
         pivot = Vector3.zero;
         DefineTile(trackController.TileRotation(trackController.GetPosInt(transform.position))*Vector3.left);
@@ -88,6 +94,11 @@ public partial class TrainMover : MonoBehaviour {
             position = p1;
             direction = p2;
         }
+    }
+
+    float GetAcceleration(float Vf, float Vo) {
+        desiredSpeed = Vf;
+        return Mathf.Abs((Vf * Vf - Vo * Vo) / (2f * 1.9f));
     }
 
     void SetTargetStop(TrainStop stop) {
@@ -257,24 +268,27 @@ public partial class TrainMover : MonoBehaviour {
         if (curved) {
             pivot = (positions[0] + positions[4]) / 2f;
         }
-        if (trackController.GetStop(trackController.GetPosInt(transform.position)) != null)
+        TrainStop checkforstop = trackController.GetStop(trackController.GetPosInt(transform.position)
+                                                       + Vector3Int.RoundToInt(nextDirection));
+        if ( checkforstop != null)
         {
             if (head)
             {
-                if (trackController.GetStop(trackController.GetPosInt(transform.position)).IsPassable())
+                if (checkforstop.IsPassable())
                 {
-                    trackController.GetStop(trackController.GetPosInt(transform.position)).Enter();
+                    checkforstop.Enter();
                 }
                 else
                 {
                     Debug.Log("Stop??");
-                    speed = 0f;
-                    StoppedBySignal = trackController.GetStop(trackController.GetPosInt(transform.position));
+                    //speed = 0f;
+                    acceleration = GetAcceleration(0f, speed);
+                    StoppedBySignal = checkforstop;
                 }
             }
             else if (prevCar == null)
             {
-                trackController.GetStop(trackController.GetPosInt(transform.position)).Exit();
+                checkforstop.Exit();
             }
         }
     }
@@ -296,7 +310,8 @@ public partial class TrainMover : MonoBehaviour {
 	void Update () {
         if (StoppedBySignal != null) {
             if (StoppedBySignal.IsPassable() == true) {
-                speed = desiredSpeed;
+                //speed = desiredSpeed;
+                acceleration = GetAcceleration(maxSpeed, speed);
             }
         }
         if (FindPathToTarget && head && currentDist>TotalLength) {
@@ -318,6 +333,18 @@ public partial class TrainMover : MonoBehaviour {
             if (prevCar != null)
             {
                 prevCar.PassDownTurnLog(turnLog);
+            }
+        }
+
+        if (!Mathf.Approximately(speed,desiredSpeed)) {
+            if (speed - Time.deltaTime*acceleration>desiredSpeed) {
+                speed -= Time.deltaTime * acceleration;
+            }
+            else if (speed + Time.deltaTime * acceleration < desiredSpeed) {
+                speed += Time.deltaTime * acceleration;
+            }
+            else {
+                speed = desiredSpeed;
             }
         }
         /*
