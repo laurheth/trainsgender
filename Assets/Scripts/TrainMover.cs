@@ -274,12 +274,18 @@ public partial class TrainMover : MonoBehaviour {
         {
             if (head)
             {
-                if (checkforstop.IsPassable())
+                if (checkforstop.IsPassable() && checkforstop != TargetStop)
                 {
+                    
                     checkforstop.Enter();
                 }
                 else
                 {
+                    //if (checkforstop == )
+                    if (checkforstop.GridPosition() == TargetStop.GridPosition())
+                    {
+                        TargetStop.ImpassableTemporarily(5f);
+                    }
                     Debug.Log("Stop??");
                     //speed = 0f;
                     acceleration = GetAcceleration(0f, speed);
@@ -306,6 +312,15 @@ public partial class TrainMover : MonoBehaviour {
 
     }
 
+    IEnumerator PauseThenContinue (float wait, TrainStop nextTarget) {
+        wait = Mathf.Abs(wait);
+        while (wait>0) {
+            wait -= Time.deltaTime;
+            yield return null;
+        }
+        SetTargetStop(nextTarget);
+    }
+
 	// Update is called once per frame
 	void Update () {
         if (StoppedBySignal != null) {
@@ -322,11 +337,13 @@ public partial class TrainMover : MonoBehaviour {
         if (head && trackController.GetPosInt(transform.position)==Target) {
             if (pickingUp) {
                 pickingUp = false;
+                //StartCoroutine(PauseThenContinue(5f, dropoffs[0]));
                 SetTargetStop(dropoffs[0]);
             }
             else {
                 pickingUp = true;
                 SetTargetStop(pickups[0]);
+                //StartCoroutine(PauseThenContinue(5f, pickups[0]));
             }
         }
         if (head && currentDist < TotalLength) {
