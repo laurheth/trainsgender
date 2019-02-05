@@ -61,7 +61,7 @@ public class TrainStop : MonoBehaviour {
     }
 
     public void Enter () {
-        SetPassable(false);
+        //SetPassable(false);
         if (IsEntryFor != null)
         {
             IsEntryFor.Enter();
@@ -69,7 +69,7 @@ public class TrainStop : MonoBehaviour {
     }
 
     public void Exit () {
-        SetPassable(true);
+        //SetPassable(true);
         if (IsExitFor != null)
         {
             IsExitFor.Exit();
@@ -78,12 +78,14 @@ public class TrainStop : MonoBehaviour {
 
     IEnumerator ImpassableTemp(float wait) {
         wait = Mathf.Abs(wait);
-        Enter();
+        SetPassable(false);
+        //Enter();
         while (wait>0) {
             wait -= Time.deltaTime;
             yield return null;
         }
-        Exit();
+        SetPassable(true);
+        //Exit();
     }
 
     public void ImpassableTemporarily(float wait) {

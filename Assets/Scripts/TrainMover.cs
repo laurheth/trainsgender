@@ -274,7 +274,7 @@ public partial class TrainMover : MonoBehaviour {
         {
             if (head)
             {
-                if (checkforstop.IsPassable() && checkforstop != TargetStop)
+                if (checkforstop.IsPassable() && (TargetStop == null  || checkforstop.GridPosition() != TargetStop.GridPosition()))
                 {
                     
                     checkforstop.Enter();
@@ -294,6 +294,9 @@ public partial class TrainMover : MonoBehaviour {
             }
             else if (prevCar == null)
             {
+                Debug.Log("Deactivating:");
+                Debug.Log(trackController.GetPosInt(transform.position));
+                Debug.Log(Vector3Int.RoundToInt(nextDirection));
                 checkforstop.Exit();
             }
         }
@@ -327,6 +330,8 @@ public partial class TrainMover : MonoBehaviour {
             if (StoppedBySignal.IsPassable() == true) {
                 //speed = desiredSpeed;
                 acceleration = GetAcceleration(maxSpeed, speed);
+                StoppedBySignal.Enter();
+                StoppedBySignal = null;
             }
         }
         if (FindPathToTarget && head && currentDist>TotalLength) {
