@@ -69,6 +69,11 @@ public class TrackController : MonoBehaviour
             block.Print();
             block.DetermineChains();
         }
+
+        foreach (TrainStop stop in GetStops(TrainStop.StopType.signal)) {
+            stop.CheckChains();
+        }
+
     }
 
     void StopBlockIterate(Vector3Int thisPos, List<Vector3Int> donetiles,
