@@ -400,6 +400,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   thisType: 1
+  passable: 0
+  ChainSignal: 0
+  chainPassable: 0
+  ShowMessages: 0
 --- !u!212 &250274903
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -844,6 +848,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   thisType: 0
+  passable: 0
+  ChainSignal: 0
+  chainPassable: 0
+  ShowMessages: 0
 --- !u!212 &434510672
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1419,6 +1427,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   thisType: 2
+  passable: 0
+  ChainSignal: 0
+  chainPassable: 0
+  ShowMessages: 0
 --- !u!212 &824167043
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2013,6 +2025,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   thisType: 2
+  passable: 0
+  ChainSignal: 1
+  chainPassable: 0
+  ShowMessages: 1
 --- !u!212 &1443982252
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3430,6 +3446,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   thisType: 2
+  passable: 0
+  ChainSignal: 0
+  chainPassable: 0
+  ShowMessages: 0
 --- !u!212 &1716510471
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3696,6 +3716,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   thisType: 2
+  passable: 0
+  ChainSignal: 0
+  chainPassable: 0
+  ShowMessages: 0
 --- !u!212 &1867870738
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3784,6 +3808,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   thisType: 2
+  passable: 0
+  ChainSignal: 0
+  chainPassable: 0
+  ShowMessages: 0
 --- !u!212 &1878999401
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3872,6 +3900,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   thisType: 2
+  passable: 0
+  ChainSignal: 0
+  chainPassable: 0
+  ShowMessages: 0
 --- !u!212 &1995124509
 SpriteRenderer:
   m_ObjectHideFlags: 0

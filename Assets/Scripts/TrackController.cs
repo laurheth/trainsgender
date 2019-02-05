@@ -174,6 +174,10 @@ public class TrackController : MonoBehaviour
             }
         }
 
+        public bool CurrentState() {
+            return passable;
+        }
+
         public void DetermineChains() {
             foreach (TrainStop stop in Entrances) {
                 if (stop.ChainSignal) {

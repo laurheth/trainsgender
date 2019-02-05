@@ -45,7 +45,7 @@ public class TrainStop : MonoBehaviour {
         return thisType;
     }
 
-    public void SetPassable(bool setTo) {
+    public void SetPassable(bool setTo, bool checkSelfChains=true) {
         passable = setTo;
         UpdateColor();
         if (ChainsFrom.Count > 0)
@@ -58,7 +58,10 @@ public class TrainStop : MonoBehaviour {
         if (ShowMessages) {
             Debug.Log(setTo);
         }
-        //CheckChains();
+        if (setTo && checkSelfChains)
+        {
+            CheckChains();
+        }
     }
 
     private void UpdateColor() {
@@ -134,7 +137,7 @@ public class TrainStop : MonoBehaviour {
         }
         Debug.Log(any + " " + all);
         SetChain(any);
-        SetPassable(all);
+        SetPassable(all && IsEntryFor.CurrentState(),false);
     }
 
     public void SetChain(bool chainbool) {
