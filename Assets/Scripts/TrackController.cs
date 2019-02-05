@@ -67,6 +67,7 @@ public class TrackController : MonoBehaviour
         foreach (StopBlock block in stopBlocks) {
             //Debug.Log(breaker);
             block.Print();
+            block.DetermineChains();
         }
     }
 
@@ -115,10 +116,12 @@ public class TrackController : MonoBehaviour
         List<TrainStop> Entrances;
         List<TrainStop> Exits;
         bool passable;
+        //bool chainpassable;
         public StopBlock() {
             Entrances = new List<TrainStop>();
             Exits = new List<TrainStop>();
             passable = true;
+            //chainpassable = true;
         }
 
         public void Print() {
@@ -146,6 +149,15 @@ public class TrackController : MonoBehaviour
             //newStop.SetPassable(passable);
         }
 
+        public List<TrainStop> GetEntrances() {
+            return Entrances;
+        }
+
+        public List<TrainStop> GetExits()
+        {
+            return Exits;
+        }
+
         public void Enter () {
             passable = false;
             SetStatus();
@@ -161,6 +173,20 @@ public class TrackController : MonoBehaviour
                 stop.SetPassable(passable);
             }
         }
+
+        public void DetermineChains() {
+            foreach (TrainStop stop in Entrances) {
+                if (stop.ChainSignal) {
+                    foreach (TrainStop pollStop in Exits) {
+                        pollStop.AddChain(stop);
+                    }
+                }
+            }
+        }
+
+        /*public void SetChains(bool chain) {
+            chainpassable = chain;
+        }*/
     }
 
     public List<TrainStop> GetStops(TrainStop.StopType type) {

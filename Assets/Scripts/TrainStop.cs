@@ -7,10 +7,15 @@ public class TrainStop : MonoBehaviour {
     Grid parentGrid;
     public enum StopType { pickUp, dropOff, signal };
     public StopType thisType;
-    bool passable;
+    public bool passable;
+    public bool ChainSignal;
+    public bool chainPassable;
+    public bool ShowMessages;
     SpriteRenderer sprite;
     TrackController.StopBlock IsExitFor;
     TrackController.StopBlock IsEntryFor;
+    List<TrainStop> ChainsFrom;
+    List<TrainStop> ChainsInto;
     // Use this for initialization
     private void Awake()
     {
@@ -21,8 +26,11 @@ public class TrainStop : MonoBehaviour {
         parentGrid = GetComponentInParent<Grid>();
         transform.position = parentGrid.GetCellCenterWorld(parentGrid.WorldToCell(transform.position));
         passable = true;
+        chainPassable=true;
         sprite = GetComponent<SpriteRenderer>();
         sprite.color = Color.cyan;
+        ChainsFrom = new List<TrainStop>();
+        ChainsInto = new List<TrainStop>();
 	}
 	
     public Vector3Int GridPosition() {
@@ -39,11 +47,31 @@ public class TrainStop : MonoBehaviour {
 
     public void SetPassable(bool setTo) {
         passable = setTo;
-        if (passable) {
-            sprite.color = Color.cyan;
+        UpdateColor();
+        if (ChainsFrom.Count > 0)
+        {
+            foreach (TrainStop stop in ChainsFrom)
+            {
+                stop.CheckChains();
+            }
+        }
+        if (ShowMessages) {
+            Debug.Log(setTo);
+        }
+        //CheckChains();
+    }
+
+    private void UpdateColor() {
+        if (!passable) {
+            sprite.color = Color.red;
         }
         else {
-            sprite.color = Color.red;
+            if (chainPassable) {
+                sprite.color = Color.cyan;
+            }
+            else {
+                sprite.color = Color.yellow;
+            }
         }
     }
 
@@ -90,6 +118,42 @@ public class TrainStop : MonoBehaviour {
 
     public void ImpassableTemporarily(float wait) {
         StartCoroutine(ImpassableTemp(wait));
+    }
+
+    public void CheckChains() {
+        if (!ChainSignal || ChainsInto.Count==0) {
+            return;
+        }
+        bool any = true;
+        bool all = false;
+        Debug.Log("Chain Chain:");
+        foreach (TrainStop stop in ChainsInto) {
+            any &= stop.IsPassable();
+            all |= stop.IsPassable();
+            Debug.Log(stop.GridPosition() + " " + stop.IsPassable());
+        }
+        Debug.Log(any + " " + all);
+        SetChain(any);
+        SetPassable(all);
+    }
+
+    public void SetChain(bool chainbool) {
+        chainPassable = chainbool;
+        UpdateColor();
+    }
+
+    public void AddChain(TrainStop chainFrom) {
+        if (!ChainsFrom.Contains(chainFrom)) {
+            ChainsFrom.Add(chainFrom);
+        }
+        chainFrom.AddChainTo(this);
+    }
+
+    public void AddChainTo(TrainStop chainTo) {
+        if (!ChainsInto.Contains(chainTo))
+        {
+            ChainsInto.Add(chainTo);
+        }
     }
 
 }
