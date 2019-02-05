@@ -286,7 +286,7 @@ public partial class TrainMover : MonoBehaviour {
                     {
                         TargetStop.ImpassableTemporarily(5f);
                     }
-                    Debug.Log("Stop??");
+                    //Debug.Log("Stop??");
                     //speed = 0f;
                     acceleration = GetAcceleration(0f, speed);
                     StoppedBySignal = checkforstop;
@@ -294,9 +294,9 @@ public partial class TrainMover : MonoBehaviour {
             }
             else if (prevCar == null)
             {
-                Debug.Log("Deactivating:");
-                Debug.Log(trackController.GetPosInt(transform.position));
-                Debug.Log(Vector3Int.RoundToInt(nextDirection));
+                //Debug.Log("Deactivating:");
+                //Debug.Log(trackController.GetPosInt(transform.position));
+                //Debug.Log(Vector3Int.RoundToInt(nextDirection));
                 checkforstop.Exit();
             }
         }

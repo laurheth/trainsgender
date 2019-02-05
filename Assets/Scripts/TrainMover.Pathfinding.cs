@@ -57,7 +57,7 @@ public partial class TrainMover : MonoBehaviour {
             //Debug.Log(OpenList.)
             breaker++;
         }
-        Debug.Log(breaker);
+        //Debug.Log(breaker);
         if (ClosedList.Contains(targetTile)) {
             PathTile thisTile = ClosedList[ClosedList.Count - 1];
             Vector3Int ForwardDir;
@@ -76,7 +76,7 @@ public partial class TrainMover : MonoBehaviour {
                 }
                 breaker++;
             }
-            Debug.Log(msg);
+            //Debug.Log(msg);
 
         }
     }
