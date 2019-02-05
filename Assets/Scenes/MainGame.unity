@@ -261,7 +261,7 @@ MonoBehaviour:
   prevCarObj: {fileID: 1283979132}
   prevCarDist: 0.7
   trainSprite: {fileID: 1110765159}
-  showMessages: 1
+  showMessages: 0
   head: 1
   currentDist: 0
   Target: {x: 0, y: 0, z: 0}
@@ -435,7 +435,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 6d86f843d01a448ccb7d46666379497d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8f6b3837bb3ce4afb8fa3184324cf209, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -879,7 +879,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 6d86f843d01a448ccb7d46666379497d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8f6b3837bb3ce4afb8fa3184324cf209, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1244,7 +1244,7 @@ MonoBehaviour:
   prevCarObj: {fileID: 1786716252}
   prevCarDist: 0.7
   trainSprite: {fileID: 378226328}
-  showMessages: 1
+  showMessages: 0
   head: 0
   currentDist: 0
   Target: {x: 0, y: 0, z: 0}
@@ -1510,7 +1510,7 @@ MonoBehaviour:
   prevCarObj: {fileID: 646710285}
   prevCarDist: 0.5
   trainSprite: {fileID: 355949135}
-  showMessages: 1
+  showMessages: 0
   head: 0
   currentDist: 0
   Target: {x: 0, y: 0, z: 0}
@@ -1763,7 +1763,7 @@ MonoBehaviour:
   prevCarObj: {fileID: 1609126173}
   prevCarDist: 0.5
   trainSprite: {fileID: 1204680136}
-  showMessages: 1
+  showMessages: 0
   head: 0
   currentDist: 0
   Target: {x: 0, y: 0, z: 0}
@@ -2207,7 +2207,7 @@ MonoBehaviour:
   prevCarObj: {fileID: 986437621}
   prevCarDist: 0.7
   trainSprite: {fileID: 1845376181}
-  showMessages: 1
+  showMessages: 0
   head: 0
   currentDist: 0
   Target: {x: 0, y: 0, z: 0}
@@ -3521,7 +3521,7 @@ MonoBehaviour:
   prevCarObj: {fileID: 0}
   prevCarDist: 0.5
   trainSprite: {fileID: 0}
-  showMessages: 1
+  showMessages: 0
   head: 0
   currentDist: 0
   Target: {x: 0, y: 0, z: 0}

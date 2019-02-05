@@ -9,11 +9,13 @@ public partial class TrainMover : MonoBehaviour {
     public void FindPath(Vector3Int target, Vector3Int startDirection) {
         turnLog.Clear();
         int breaker = 0;
-        PathTile targetTile = new PathTile(target, null, target,false,Vector3Int.zero);
+        PathTile targetTile = new PathTile(target, null, target,false,Vector3Int.zero,null);
         List<PathTile> ClosedList = new List<PathTile>();
         List<PathTile> OpenList = new List<PathTile>();
         Vector3Int[] exits;
-        ClosedList.Add(new PathTile(trackController.GetPosInt(transform.position), null, target,true,startDirection));
+        ClosedList.Add(new PathTile(trackController.GetPosInt(transform.position),
+                                    null, target,true,startDirection,
+                                    trackController.GetStop(trackController.GetPosInt(transform.position))));
 
 
 /*        exits = trackController.ValidExits(ClosedList[0].GetPos(), startDirection);
@@ -26,7 +28,8 @@ public partial class TrainMover : MonoBehaviour {
         while (breaker<1000 && !ClosedList.Contains(targetTile)) {
             if (breaker==0) {
                 ClosedList.Add(new PathTile(trackController.GetPosInt(transform.position) + startDirection,
-                                    ClosedList[0], target,true,startDirection));
+                                    ClosedList[0], target,true,startDirection,
+                                            trackController.GetStop(trackController.GetPosInt(transform.position) + startDirection)));
             }
             else {
                 if (OpenList.Count==0) {
@@ -48,7 +51,8 @@ public partial class TrainMover : MonoBehaviour {
                     }
                 }
                 PathTile newTile = new PathTile(exits[i], ClosedList[ClosedList.Count - 1], target,true,
-                                                exits[i]-ClosedList[ClosedList.Count - 1].GetPos());
+                                                exits[i]-ClosedList[ClosedList.Count - 1].GetPos(),
+                                                trackController.GetStop(exits[i]));
                 if (!ClosedList.Contains(newTile)) {
                     OpenList.Add(newTile);
                 }
@@ -90,10 +94,19 @@ public partial class TrainMover : MonoBehaviour {
         float travelCost;
         float proximityToTarget;
         bool hasdirection;
+        float tileCost;
 
-        public PathTile(Vector3Int pos, PathTile previous, Vector3Int target, bool directional, Vector3Int dir) {
+        public PathTile(Vector3Int pos, PathTile previous, Vector3Int target, bool directional, Vector3Int dir, TrainStop stop) {
             position = pos;
             direction = dir;
+
+            tileCost = 1;
+            //if (track)
+            if (stop != null) {
+                if (!stop.IsPassable()) {
+                    tileCost = 10;
+                }
+            }
             SetPrevious(previous);
             hasdirection = directional;
             proximityToTarget = Mathf.Abs(pos.x - target.x) + Mathf.Abs(pos.y - target.y);
