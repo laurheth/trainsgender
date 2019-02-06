@@ -14,13 +14,13 @@ public class TrackController : MonoBehaviour
     public Vector3 direction;
     Dictionary<Vector3Int, TrainStop> trainStops;
     List<StopBlock> stopBlocks;
-    Camera cam;
+    //Camera cam;
     // Use this for initialization
     void Awake()
     {
         tilemap = GetComponent<Tilemap>();
         grid = gridObj.GetComponent<Grid>();
-        cam = camobj.GetComponent<Camera>();
+        //cam = camobj.GetComponent<Camera>();
         //direction = Vector3.left;
         trainStops = new Dictionary<Vector3Int, TrainStop>();
 
@@ -217,25 +217,6 @@ public class TrackController : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update () {
-        Vector3 mousepos = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
-        Vector3Int mouseposInt = grid.WorldToCell(mousepos);
-        TileBase tile = GetTile(mouseposInt);
-        //Vector3 rotation = TileRotation(mouseposInt);
-        if (tile != null) {
-            //Debug.Log(tile.name);
-            //Debug.Log(mouseposInt);
-            //Debug.Log(rotation);
-            Vector3Int[] exits = ValidExits(mousepos,direction);
-            if (exits != null && exits.Length>0) {
-                for (int i = 0; i < exits.Length;i++) {
-                    //Debug.Log(exits[i]);
-                }
-            }
-        }
-	}
-
     TileBase GetTile(Vector3Int pos) {
         if (tilemap.HasTile(pos)) {
             return tilemap.GetTile(pos);
@@ -256,6 +237,10 @@ public class TrackController : MonoBehaviour
     }
 
     public Vector3 GetPos(Vector3 position) {
+        return grid.GetCellCenterWorld(grid.WorldToCell(position));
+    }
+
+    public Vector3 ToCellCenter(Vector3 position) {
         return grid.GetCellCenterWorld(grid.WorldToCell(position));
     }
 

@@ -938,6 +938,8 @@ MonoBehaviour:
   MinMaxSize:
   - 1
   - 50
+  tileToPlace: {fileID: 0}
+  trackControlObj: {fileID: 1610389693}
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
