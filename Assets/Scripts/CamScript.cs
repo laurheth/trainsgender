@@ -41,5 +41,6 @@ public class CamScript : MonoBehaviour {
         // Cursor position
         mousePos = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
         //mousePosInt = trackController.ToCellCenter(mousePos);
+        tileToPlace.transform.position=trackController.ToCellCenter(mousePos);
 	}
 }
