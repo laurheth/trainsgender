@@ -42,7 +42,7 @@ public partial class TrainMover : MonoBehaviour {
                                                     - ClosedList[ClosedList.Count - 1].GetPrevious().GetPos();
             }
             exits = trackController.ValidExits(ClosedList[ClosedList.Count-1].GetPos(), startDirection);
-            if (exits.Length > 0)
+            if (exits != null && exits.Length > 0)
             {
                 for (i = 0; i < exits.Length; i++)
                 {

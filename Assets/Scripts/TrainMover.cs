@@ -41,10 +41,12 @@ public partial class TrainMover : MonoBehaviour {
     List<TrainStop> pickups;
     List<TrainStop> dropoffs;
     TrainStop StoppedBySignal;
+    Vector3Int StoppedByTile;
 
     // Use this for initialization
     private void Awake()
     {
+        StoppedByTile = Vector3Int.one;
         StoppedBySignal = null;
         TargetStop = null;
         pickups = null;
@@ -96,9 +98,9 @@ public partial class TrainMover : MonoBehaviour {
         }
     }
 
-    float GetAcceleration(float Vf, float Vo) {
+    float GetAcceleration(float Vf, float Vo, float dist=1.9f) {
         desiredSpeed = Vf;
-        return Mathf.Abs((Vf * Vf - Vo * Vo) / (2f * 1.9f));
+        return Mathf.Abs((Vf * Vf - Vo * Vo) / (2f * dist));
     }
 
     void SetTargetStop(TrainStop stop) {
@@ -268,6 +270,15 @@ public partial class TrainMover : MonoBehaviour {
         if (curved) {
             pivot = (positions[0] + positions[4]) / 2f;
         }
+
+        if (head && trackController.GetTile(trackController.GetPosInt(transform.position)
+                                                       + Vector3Int.RoundToInt(nextDirection))==null) {
+            StoppedByTile = trackController.GetPosInt(transform.position)
+                                         + Vector3Int.RoundToInt(nextDirection);
+            acceleration = GetAcceleration(0f, speed,0.8f);
+            Debug.Log("Stop for empty space");
+        }
+
         TrainStop checkforstop = trackController.GetStop(trackController.GetPosInt(transform.position)
                                                        + Vector3Int.RoundToInt(nextDirection));
         if ( checkforstop != null)
@@ -326,6 +337,13 @@ public partial class TrainMover : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+        if (StoppedByTile.z==0){
+            if (trackController.GetTile(StoppedByTile) != null) {
+                StoppedByTile = Vector3Int.one;
+                acceleration = GetAcceleration(maxSpeed, speed);
+            }
+        } 
+
         if (StoppedBySignal != null) {
             if (StoppedBySignal.IsPassable() == true) {
                 //speed = desiredSpeed;
@@ -398,13 +416,29 @@ public partial class TrainMover : MonoBehaviour {
         UpdatePosition();
         if (squareDist > squareLength)
         {
-            squareDist -= squareLength;
-            DefineTile(nextDirection);
+            if (trackController.GetTile(trackController.GetPosInt(transform.position)) == null)
+            {
+                currentDist -= (squareDist - squareLength);
+                squareDist = squareLength;
+            }
+            else
+            {
+                squareDist -= squareLength;
+                DefineTile(nextDirection);
+            }
             UpdatePosition();
         }
         else if (squareDist < -squareLength) {
-            squareDist += squareLength;
-            DefineTile(nextDirectionRev,false);
+            if (trackController.GetTile(trackController.GetPosInt(transform.position)) == null)
+            {
+                currentDist -= (squareDist - squareLength);
+                squareDist = -squareLength;
+            }
+            else
+            {
+                squareDist += squareLength;
+                DefineTile(nextDirectionRev, false);
+            }
             UpdatePosition();
         }
         if (prevCar != null) {

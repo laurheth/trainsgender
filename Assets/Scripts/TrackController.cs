@@ -217,7 +217,7 @@ public class TrackController : MonoBehaviour
         }
     }
 
-    TileBase GetTile(Vector3Int pos) {
+    public TileBase GetTile(Vector3Int pos) {
         if (tilemap.HasTile(pos)) {
             return tilemap.GetTile(pos);
         }
