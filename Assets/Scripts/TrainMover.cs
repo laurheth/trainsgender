@@ -29,9 +29,11 @@ public partial class TrainMover : MonoBehaviour {
     float lastSpeed;
     bool curved;
     bool pickingUp;
+    bool noProperExit;
     Vector3 pivot;
     Vector3 trackDirection;
     Vector3 nextDirection;
+    public Vector3Int startDirection;
     Vector3 nextDirectionRev;
     Dictionary<TurnKey, float> turnLog;
     public float turnAngle;
@@ -46,6 +48,7 @@ public partial class TrainMover : MonoBehaviour {
     // Use this for initialization
     private void Awake()
     {
+        noProperExit = false;
         StoppedByTile = Vector3Int.one;
         StoppedBySignal = null;
         TargetStop = null;
@@ -58,6 +61,7 @@ public partial class TrainMover : MonoBehaviour {
         lindir = 1f;
         curved = false;
         trackController = trackObj.GetComponent<TrackController>();
+        //transform.position=trackController
         squareDist = 0f;
         speed = 0f;
         acceleration = GetAcceleration(maxSpeed, speed);
@@ -67,13 +71,17 @@ public partial class TrainMover : MonoBehaviour {
 
         positions = new Vector3[5];
         pivot = Vector3.zero;
-        DefineTile(trackController.TileRotation(trackController.GetPosInt(transform.position))*Vector3.left);
-        currentDist = 0f;
-        if (prevCarObj != null) {
+        if (prevCarObj != null)
+        {
             prevCar = prevCarObj.GetComponent<TrainMover>();
         }
+
+        //DefineTile(trackController.TileRotation(trackController.GetPosInt(transform.position))*Vector3.left);
+        DefineTile(startDirection);
+        currentDist = 0f;
+
         trackDirection = Vector3.zero;
-        nextDirection = Vector3.zero;
+        nextDirection = startDirection;//Vector3.zero;
         nextDirectionRev = Vector3.zero;
         if (head)
         {
@@ -139,9 +147,9 @@ public partial class TrainMover : MonoBehaviour {
         //int turnLogIndex = -1;//turnLog.(trackController.GetPosInt(transform.position));
         //float useTurn = 1;
         //bool noSwitch = false;
-        if (showMessages && trackController.GetPosInt(transform.position) == TestPosition)
+        if (showMessages)// && trackController.GetPosInt(transform.position) == TestPosition)
         {
-            Debug.Log(Vector3Int.RoundToInt(enterDirection));
+            Debug.Log("Def tile"+Vector3Int.RoundToInt(enterDirection));
             Debug.Log(speed);
             Debug.Log(head);
             Debug.Log(prevCar == null);
@@ -175,7 +183,7 @@ public partial class TrainMover : MonoBehaviour {
             //Debug.Log(transform.position);
             //Debug.Log(enterDirection.normalized);
             //Debug.Log(enterDirection.normalized+transform.position+ Quaternion.Euler(0, 0, turnAngle) * enterDirection.normalized);
-            //Debug.Log(gameObject.name + " " +msg);
+            Debug.Log(gameObject.name + " " +msg);
             //Debug.Log(positions[2]);
         }
 
@@ -187,12 +195,27 @@ public partial class TrainMover : MonoBehaviour {
                                    // Determine relevant exits
         Vector3 checkAheadVector = (enterDirection.normalized
                                   + Quaternion.Euler(0, 0, -Mathf.Sign(speed) * turnAngle) * enterDirection.normalized);
+        bool checkExit;
+        noProperExit = true;
         for (j = 0; j < 2; j++)
         {
             for (i = 0; i < exits.Length; i++)
             {
-                if ((transform.position - trackController.GetPos(exits[i]) + j * (checkAheadVector)).sqrMagnitude <
-                    (transform.position - trackController.GetPos(exits[minDists[j]]) + j * (checkAheadVector)).sqrMagnitude)
+                if (j==0) {
+                    checkExit = ((trackController.GetPosInt(transform.position) - Vector3Int.RoundToInt(enterDirection))==exits[i]);
+                    if (checkExit)
+                    {
+                        noProperExit = false;
+                    }
+                    if (showMessages) {
+                        Debug.Log((trackController.GetPosInt(transform.position) - Vector3Int.RoundToInt(enterDirection)));
+                    }
+                }
+                else {
+                    checkExit = ((transform.position - trackController.GetPos(exits[i]) + Mathf.Max(j,1) * (checkAheadVector)).sqrMagnitude <
+                                 (transform.position - trackController.GetPos(exits[minDists[j]]) + Mathf.Max(j, 1) * (checkAheadVector)).sqrMagnitude);
+                }
+                if (checkExit)
                 {
                     if (j > 0 && i == minDists[0])
                     {
@@ -205,6 +228,11 @@ public partial class TrainMover : MonoBehaviour {
             {
                 minDists[1] = 1;
             }
+        }
+        if (noProperExit) {
+            Debug.Log("No proper exit!!!!");
+            positions[2] = (trackController.GetPosInt(transform.position) - Vector3Int.RoundToInt(enterDirection));
+            return;
         }
         startInd = minDists[0];
         targInd = minDists[1];
@@ -234,7 +262,7 @@ public partial class TrainMover : MonoBehaviour {
                                             * Vector3.left;*/
         //speed = Mathf.Abs(speed);
         bool startbool=((positions[4] - transform.position).sqrMagnitude) > ((positions[0] - transform.position).sqrMagnitude);
-        if ((startbool == forward))
+        if ((startbool == forward) || currentDist<2)
         //if (Vector3.Dot(enterDirection,trackController.TileRotation(trackController.GetPosInt(positions[1]))
         //                *Vector3.left) >= -.3)
         {
@@ -242,8 +270,9 @@ public partial class TrainMover : MonoBehaviour {
             //speed = Mathf.Abs(speed);
         }
         else {
+
             //lindir = -1;
-            //Debug.Log("switch dir?");
+            if (showMessages) { Debug.Log("switch dir?"); }
             positions[4] = positions[0];
             positions[0] = trackController.GetPos(exits[startInd]);
             //squareDist += squareLength;
@@ -337,6 +366,10 @@ public partial class TrainMover : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+        if (noProperExit) {
+            acceleration = GetAcceleration(maxSpeed, speed);
+            speed = 0;
+        }
         if (StoppedByTile.z==0){
             if (trackController.GetTile(StoppedByTile) != null) {
                 StoppedByTile = Vector3Int.one;
@@ -416,7 +449,7 @@ public partial class TrainMover : MonoBehaviour {
         UpdatePosition();
         if (squareDist > squareLength)
         {
-            if (trackController.GetTile(trackController.GetPosInt(transform.position)) == null)
+            if (trackController.GetTile(trackController.GetPosInt(transform.position)) == null && !noProperExit)
             {
                 currentDist -= (squareDist - squareLength);
                 squareDist = squareLength;
@@ -429,7 +462,7 @@ public partial class TrainMover : MonoBehaviour {
             UpdatePosition();
         }
         else if (squareDist < -squareLength) {
-            if (trackController.GetTile(trackController.GetPosInt(transform.position)) == null)
+            if (trackController.GetTile(trackController.GetPosInt(transform.position)) == null && !noProperExit)
             {
                 currentDist -= (squareDist - squareLength);
                 squareDist = -squareLength;

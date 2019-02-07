@@ -324,6 +324,7 @@ MonoBehaviour:
   desiredSpeed: 0
   maxSpeed: 0
   acceleration: 0
+  startDirection: {x: -1, y: 0, z: 0}
   turnAngle: 0
 --- !u!212 &156325460
 SpriteRenderer:
@@ -482,6 +483,7 @@ MonoBehaviour:
   desiredSpeed: 0
   maxSpeed: 5
   acceleration: 0
+  startDirection: {x: -1, y: 0, z: 0}
   turnAngle: 0
 --- !u!212 &183316112
 SpriteRenderer:
@@ -787,6 +789,7 @@ MonoBehaviour:
   desiredSpeed: 0
   maxSpeed: 0
   acceleration: 0
+  startDirection: {x: -1, y: 0, z: 0}
   turnAngle: 0
 --- !u!212 &262471908
 SpriteRenderer:
@@ -1068,6 +1071,7 @@ MonoBehaviour:
   desiredSpeed: 0
   maxSpeed: 0
   acceleration: 0
+  startDirection: {x: -1, y: 0, z: 0}
   turnAngle: 0
 --- !u!212 &306260024
 SpriteRenderer:
@@ -1566,6 +1570,7 @@ MonoBehaviour:
   desiredSpeed: 0
   maxSpeed: 0
   acceleration: 0
+  startDirection: {x: -1, y: 0, z: 0}
   turnAngle: 0
 --- !u!212 &620263525
 SpriteRenderer:
@@ -1682,6 +1687,7 @@ MonoBehaviour:
   desiredSpeed: 0
   maxSpeed: 0
   acceleration: 0
+  startDirection: {x: -1, y: 0, z: 0}
   turnAngle: 0
 --- !u!212 &646710288
 SpriteRenderer:
@@ -2268,6 +2274,7 @@ MonoBehaviour:
   desiredSpeed: 0
   maxSpeed: 0
   acceleration: 0
+  startDirection: {x: -1, y: 0, z: 0}
   turnAngle: 0
 --- !u!212 &986437624
 SpriteRenderer:
@@ -2835,6 +2842,7 @@ MonoBehaviour:
   desiredSpeed: 0
   maxSpeed: 0
   acceleration: 0
+  startDirection: {x: -1, y: 0, z: 0}
   turnAngle: 0
 --- !u!212 &1283979135
 SpriteRenderer:
@@ -3080,6 +3088,7 @@ MonoBehaviour:
   desiredSpeed: 0
   maxSpeed: 0
   acceleration: 0
+  startDirection: {x: -1, y: 0, z: 0}
   turnAngle: 0
 --- !u!212 &1567643032
 SpriteRenderer:
@@ -3196,6 +3205,7 @@ MonoBehaviour:
   desiredSpeed: 0
   maxSpeed: 0
   acceleration: 0
+  startDirection: {x: -1, y: 0, z: 0}
   turnAngle: 0
 --- !u!212 &1609126176
 SpriteRenderer:
@@ -4598,6 +4608,7 @@ MonoBehaviour:
   desiredSpeed: 0
   maxSpeed: 0
   acceleration: 0
+  startDirection: {x: -1, y: 0, z: 0}
   turnAngle: 0
 --- !u!212 &1786716255
 SpriteRenderer:
@@ -5100,7 +5111,7 @@ MonoBehaviour:
   prevCarObj: {fileID: 262471906}
   prevCarDist: 0.7
   trainSprite: {fileID: 771692118}
-  showMessages: 0
+  showMessages: 1
   head: 1
   currentDist: 0
   Target: {x: 0, y: 0, z: 0}
@@ -5111,6 +5122,7 @@ MonoBehaviour:
   desiredSpeed: 0
   maxSpeed: 4
   acceleration: 0
+  startDirection: {x: -1, y: 0, z: 0}
   turnAngle: 0
 --- !u!212 &2016742421
 SpriteRenderer:
