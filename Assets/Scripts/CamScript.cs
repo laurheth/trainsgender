@@ -72,4 +72,22 @@ public class CamScript : MonoBehaviour {
             }
         }*/
 	}
+
+    public void PlaceTile() {
+        Vector3Int placeLocation = trackController.GetPosInt(mousePos);
+        bool okaytoplace = true;
+        for (int i = 0; i < trainChunks.Count; i++)
+        {
+            if (trackController.GetPosInt(trainChunks[i].transform.position) == placeLocation)
+            {
+                okaytoplace = false;
+                break;
+            }
+        }
+        if (okaytoplace)
+        {
+            trackController.SetTile(placeLocation, tileCursor.GetTile(), tileToPlace.transform.rotation);
+            trackController.AddObject(placeLocation, tileCursor.GetObject(), tileToPlace.transform.rotation);
+        }
+    }
 }

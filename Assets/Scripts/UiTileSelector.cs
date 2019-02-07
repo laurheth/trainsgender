@@ -18,7 +18,7 @@ public class UiTileSelector : MonoBehaviour, IPointerClickHandler {
     }
 
     public void OnPointerClick(PointerEventData eventData) {
-        Debug.Log("click!");
+        //Debug.Log("click!");
         tileCursor.tileToPlace = tileToPlace;
         tileCursor.SetSprite(GetComponent<Image>().sprite);
         tileCursor.selected = true;

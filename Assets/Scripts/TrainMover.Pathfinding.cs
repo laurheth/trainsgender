@@ -42,19 +42,26 @@ public partial class TrainMover : MonoBehaviour {
                                                     - ClosedList[ClosedList.Count - 1].GetPrevious().GetPos();
             }
             exits = trackController.ValidExits(ClosedList[ClosedList.Count-1].GetPos(), startDirection);
-            for (i = 0; i < exits.Length;i++) {
-                if (exits[i] == ClosedList[ClosedList.Count - 1].GetPos()-startDirection) { continue; }
-                if (trackController.GetStop(exits[i]) != null) {
-                    if (Vector3.Dot(trackController.GetStop(exits[i]).Direction(),startDirection)<0) {
-                        //Debug.Log(breaker + " " + ClosedList[ClosedList.Count - 1].GetPos());
-                        continue;
+            if (exits.Length > 0)
+            {
+                for (i = 0; i < exits.Length; i++)
+                {
+                    if (exits[i] == ClosedList[ClosedList.Count - 1].GetPos() - startDirection) { continue; }
+                    if (trackController.GetStop(exits[i]) != null)
+                    {
+                        if (Vector3.Dot(trackController.GetStop(exits[i]).Direction(), startDirection) < 0)
+                        {
+                            //Debug.Log(breaker + " " + ClosedList[ClosedList.Count - 1].GetPos());
+                            continue;
+                        }
                     }
-                }
-                PathTile newTile = new PathTile(exits[i], ClosedList[ClosedList.Count - 1], target,true,
-                                                exits[i]-ClosedList[ClosedList.Count - 1].GetPos(),
-                                                trackController.GetStop(exits[i]));
-                if (!ClosedList.Contains(newTile)) {
-                    OpenList.Add(newTile);
+                    PathTile newTile = new PathTile(exits[i], ClosedList[ClosedList.Count - 1], target, true,
+                                                    exits[i] - ClosedList[ClosedList.Count - 1].GetPos(),
+                                                    trackController.GetStop(exits[i]));
+                    if (!ClosedList.Contains(newTile))
+                    {
+                        OpenList.Add(newTile);
+                    }
                 }
             }
             OpenList.Sort(PathTile.Compare);
