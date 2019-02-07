@@ -305,4 +305,19 @@ public class TrackController : MonoBehaviour
         }
         return toreturn;
     }
+
+    public void SetTile(Vector3Int pos, TileBase tile, Quaternion rotation) {
+        tilemap.SetTile(pos, tile);
+        tilemap.SetTransformMatrix(pos, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
+    }
+
+    public void AddObject(Vector3Int pos, GameObject obj, Quaternion rotation) {
+        if (obj == null) { return; }
+        if (trainStops.ContainsKey(pos)) {
+            Destroy(trainStops[pos].gameObject);
+            trainStops.Remove(pos);
+        }
+        GameObject newobj = Instantiate(obj, ToCellCenter(pos), rotation, gridObj.transform);
+        trainStops.Add(pos, newobj.GetComponent<TrainStop>());
+    }
 }
