@@ -5,7 +5,10 @@ using UnityEngine;
 
 // Pathfinding
 public partial class TrainMover : MonoBehaviour {
-    
+
+    public void FindPath() {
+        FindPath(Target, Vector3Int.RoundToInt(nextDirection.normalized));
+    }
     public void FindPath(Vector3Int target, Vector3Int startDirection) {
         turnLog.Clear();
         int breaker = 0;

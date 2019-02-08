@@ -6,6 +6,7 @@ TagManager:
   tags:
   - TrainStop
   - TrainChunk
+  - Town
   layers:
   - Default
   - TransparentFX

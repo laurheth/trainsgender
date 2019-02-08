@@ -8,6 +8,8 @@ public class TrackController : MonoBehaviour
     Tilemap tilemap;
     //GameObject underlayobj;
     //Tilemap underlay;
+    TrainTown[] allTowns;
+    List<TrainMover> allTrains;
     Grid grid;
     public GameObject gridObj;
     public GameObject camobj;
@@ -30,6 +32,7 @@ public class TrackController : MonoBehaviour
             trainStops.Add(grid.WorldToCell(obj.transform.position), newStop);
         }
         stopBlocks = new List<StopBlock>();
+
     }
 
     /*private void Start()
@@ -38,6 +41,7 @@ public class TrackController : MonoBehaviour
     }*/
     private void Start()
     {
+        
         GenerateStopBlocks();
     }
 
@@ -84,6 +88,7 @@ public class TrackController : MonoBehaviour
         if (trainChunkPos.Contains(thisPos)) {
             newBlock.Enter();
         }
+        if (exits == null) { return; }
         foreach (Vector3Int exit in exits) {
             if (!donetiles.Contains(exit)) {
                 donetiles.Add(exit);

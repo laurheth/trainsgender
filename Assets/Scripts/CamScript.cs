@@ -76,7 +76,8 @@ public class CamScript : MonoBehaviour {
     public void PlaceTile() {
         Vector3Int placeLocation = trackController.GetPosInt(mousePos);
         bool okaytoplace = true;
-        for (int i = 0; i < trainChunks.Count; i++)
+        int i;
+        for (i = 0; i < trainChunks.Count; i++)
         {
             if (trackController.GetPosInt(trainChunks[i].transform.position) == placeLocation)
             {
@@ -88,6 +89,13 @@ public class CamScript : MonoBehaviour {
         {
             trackController.SetTile(placeLocation, tileCursor.GetTile(), tileToPlace.transform.rotation);
             trackController.AddObject(placeLocation, tileCursor.GetObject(), tileToPlace.transform.rotation);
+            for (i = 0; i < trainChunks.Count; i++)
+            {
+                if (trainChunks[i].GetComponent<TrainMover>().head)
+                {
+                    trainChunks[i].GetComponent<TrainMover>().FindPath();
+                }
+            }
         }
     }
 }
