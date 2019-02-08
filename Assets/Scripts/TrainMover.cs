@@ -60,6 +60,9 @@ public partial class TrainMover : MonoBehaviour {
         FindPathToTarget = false;
         lindir = 1f;
         curved = false;
+        if (trackObj==null) {
+            trackObj = GameObject.FindGameObjectWithTag("TrackController");
+        }
         trackController = trackObj.GetComponent<TrackController>();
         //transform.position=trackController
         squareDist = 0f;
@@ -394,11 +397,17 @@ public partial class TrainMover : MonoBehaviour {
             if (pickingUp) {
                 pickingUp = false;
                 //StartCoroutine(PauseThenContinue(5f, dropoffs[0]));
-                SetTargetStop(dropoffs[0]);
+                if (dropoffs.Count > 0)
+                {
+                    SetTargetStop(dropoffs[0]);
+                }
             }
             else {
                 pickingUp = true;
-                SetTargetStop(pickups[0]);
+                if (pickups.Count > 0)
+                {
+                    SetTargetStop(pickups[0]);
+                }
                 //StartCoroutine(PauseThenContinue(5f, pickups[0]));
             }
         }

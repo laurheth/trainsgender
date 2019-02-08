@@ -14,11 +14,14 @@ public class TrainStop : MonoBehaviour {
     SpriteRenderer sprite;
     TrackController.StopBlock IsExitFor;
     TrackController.StopBlock IsEntryFor;
+    public GameObject townObj;
+    TrainTown town;
     List<TrainStop> ChainsFrom;
     List<TrainStop> ChainsInto;
     // Use this for initialization
     private void Awake()
     {
+        town = null;
         IsExitFor = null;
         IsEntryFor = null;
     //}
@@ -32,7 +35,23 @@ public class TrainStop : MonoBehaviour {
         ChainsFrom = new List<TrainStop>();
         ChainsInto = new List<TrainStop>();
 	}
-	
+
+    private void Start()
+    {
+        if (townObj!=null && town==null) {
+            ConnectTo(townObj.GetComponent<TrainTown>());
+        }
+    }
+
+    public void Clear() {
+        IsExitFor = null;
+        IsEntryFor = null;
+        ChainsFrom.Clear();
+        ChainsInto.Clear();
+        passable = true;
+        chainPassable = true;
+    }
+
     public Vector3Int GridPosition() {
         return parentGrid.WorldToCell(transform.position);
     }
@@ -157,6 +176,11 @@ public class TrainStop : MonoBehaviour {
         {
             ChainsInto.Add(chainTo);
         }
+    }
+
+    public void ConnectTo(TrainTown connection) {
+        town = connection;
+        townObj = town.gameObject;
     }
 
 }

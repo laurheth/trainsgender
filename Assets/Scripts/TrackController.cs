@@ -43,6 +43,21 @@ public class TrackController : MonoBehaviour
     {
         
         GenerateStopBlocks();
+        GameObject[] townObjs = GameObject.FindGameObjectsWithTag("Town");
+        allTowns = new TrainTown[townObjs.Length];
+        for (int i = 0; i < townObjs.Length; i++)
+        {
+            allTowns[i] = townObjs[i].GetComponent<TrainTown>();
+        }
+    }
+
+    void RefreshBlocks() {
+        stopBlocks.Clear();
+        List<TrainStop> Signals = GetStops(TrainStop.StopType.signal);
+        foreach (TrainStop signal in Signals) {
+            signal.Clear();
+        }
+        GenerateStopBlocks();
     }
 
     void GenerateStopBlocks()
@@ -323,6 +338,16 @@ public class TrackController : MonoBehaviour
             trainStops.Remove(pos);
         }
         GameObject newobj = Instantiate(obj, ToCellCenter(pos), rotation, gridObj.transform);
-        trainStops.Add(pos, newobj.GetComponent<TrainStop>());
+        TrainStop newStop = newobj.GetComponent<TrainStop>();
+        trainStops.Add(pos, newStop);
+
+        if (newStop.GetStopType()==TrainStop.StopType.pickUp) {
+            for (int i = 0; i < allTowns.Length;i++) {
+                if ((newStop.transform.position - allTowns[i].transform.position).sqrMagnitude < 9 ) {
+                    newStop.ConnectTo(allTowns[i]);
+                }
+            }
+        }
+        RefreshBlocks();
     }
 }
