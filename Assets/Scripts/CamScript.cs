@@ -9,6 +9,7 @@ public class CamScript : MonoBehaviour {
     float vx;
     float hx;
     float camSize;
+    bool placingTiles;
     public float[] MinMaxSize;
     Camera cam;
     public GameObject tileToPlace;
@@ -20,6 +21,7 @@ public class CamScript : MonoBehaviour {
     //Vector3Int mousePosInt;
 	// Use this for initialization
 	void Start () {
+        placingTiles = false;
         vx = 0;
         hx = 0;
         camSize = 5f;
@@ -55,36 +57,28 @@ public class CamScript : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.R)) {
             tileToPlace.transform.Rotate(0, 0, 90);
         }
-        /*if (((Input.GetKey(KeyCode.Mouse0) && tileCursor.GetObject()==null) || (Input.GetKeyDown(KeyCode.Mouse0))) && tileCursor.IsSelected())
-        {
-            Vector3Int placeLocation = trackController.GetPosInt(mousePos);
-            bool okaytoplace = true;
-            for (int i = 0; i < trainChunks.Count;i++) {
-                if (trackController.GetPosInt(trainChunks[i].transform.position) == placeLocation) {
-                    okaytoplace = false;
-                    break;
-                }
-            }
-            if (okaytoplace)
-            {
-                trackController.SetTile(placeLocation, tileCursor.GetTile(), tileToPlace.transform.rotation);
-                trackController.AddObject(placeLocation, tileCursor.GetObject(), tileToPlace.transform.rotation);
-            }
-        }*/
+
+        if (placingTiles) {
+            PlaceTile();
+        }
 	}
+
+    public void PlacingTiles(bool setTo) {
+        placingTiles = setTo;
+    }
 
     public void PlaceTile() {
         Vector3Int placeLocation = trackController.GetPosInt(mousePos);
         bool okaytoplace = true;
         int i;
-        for (i = 0; i < trainChunks.Count; i++)
+        /*for (i = 0; i < trainChunks.Count; i++)
         {
             if (trackController.GetPosInt(trainChunks[i].transform.position) == placeLocation)
             {
                 okaytoplace = false;
                 break;
             }
-        }
+        }*/
         if (okaytoplace)
         {
             trackController.SetTile(placeLocation, tileCursor.GetTile(), tileToPlace.transform.rotation);

@@ -45,6 +45,8 @@ public partial class TrainMover : MonoBehaviour {
     TrainStop StoppedBySignal;
     Vector3Int StoppedByTile;
 
+    TrainsWoman passenger;
+
     // Use this for initialization
     private void Awake()
     {
@@ -396,10 +398,13 @@ public partial class TrainMover : MonoBehaviour {
         if (head && trackController.GetPosInt(transform.position)==Target) {
             if (pickingUp) {
                 pickingUp = false;
-                //StartCoroutine(PauseThenContinue(5f, dropoffs[0]));
-                if (dropoffs.Count > 0)
+                if (TargetStop != null && passenger==null)
                 {
-                    SetTargetStop(dropoffs[0]);
+                    passenger = TargetStop.GetPassenger();
+                    if (passenger != null) {
+                        SetTargetStop(passenger.GetGF().GetTown().GetStop());
+                        passenger.LeaveTown();
+                    }
                 }
             }
             else {

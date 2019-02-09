@@ -502,7 +502,7 @@ MonoBehaviour:
   prevCarObj: {fileID: 1544060365453746}
   prevCarDist: 0.7
   trainSprite: {fileID: 1002583496576638}
-  showMessages: 1
+  showMessages: 0
   head: 1
   currentDist: 0
   Target: {x: 0, y: 0, z: 0}

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.EventSystems;
 
-public class PlaceTileCursor : MonoBehaviour, IPointerClickHandler {
+public class PlaceTileCursor : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler {
 
     SpriteRenderer spriteRend;
     public TileBase tileToPlace;
@@ -42,6 +42,21 @@ public class PlaceTileCursor : MonoBehaviour, IPointerClickHandler {
     public void OnPointerClick(PointerEventData eventData)
     {
         //Debug.Log("click!!");
-        camScript.PlaceTile();
+        if (objToPlace != null)
+        {
+            camScript.PlaceTile();
+        }
+    }
+
+    public void OnPointerDown(PointerEventData eventData) {
+        if (objToPlace == null)
+        {
+            camScript.PlacingTiles(true);
+        }
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        camScript.PlacingTiles(false);
     }
 }

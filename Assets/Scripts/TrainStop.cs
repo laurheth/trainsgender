@@ -181,6 +181,24 @@ public class TrainStop : MonoBehaviour {
     public void ConnectTo(TrainTown connection) {
         town = connection;
         townObj = town.gameObject;
+        town.SetConnected(this);
+    }
+
+    public void Disconnect() {
+        if (town != null) {
+            town.SetConnected(null);
+            town = null;
+            townObj = null;
+        }
+    }
+
+    public TrainsWoman GetPassenger() {
+        if (town != null) {
+            return town.GetTraveller();
+        }
+        else {
+            return null;
+        }
     }
 
 }

@@ -327,27 +327,46 @@ public class TrackController : MonoBehaviour
     }
 
     public void SetTile(Vector3Int pos, TileBase tile, Quaternion rotation) {
-        tilemap.SetTile(pos, tile);
-        tilemap.SetTransformMatrix(pos, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
+        if (GetTile(pos) == null || (GetTile(pos).name != tile.name || Quaternion.Angle(TileRotation(pos),rotation)>5))
+        {
+            tilemap.SetTile(pos, tile);
+            tilemap.SetTransformMatrix(pos, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
+        }
     }
 
     public void AddObject(Vector3Int pos, GameObject obj, Quaternion rotation) {
-        if (obj == null) { return; }
+        //if (obj == null) { return; }
+        bool changedSignals = false;
         if (trainStops.ContainsKey(pos)) {
+            trainStops[pos].Disconnect();
             Destroy(trainStops[pos].gameObject);
             trainStops.Remove(pos);
+            changedSignals = true;
         }
-        GameObject newobj = Instantiate(obj, ToCellCenter(pos), rotation, gridObj.transform);
-        TrainStop newStop = newobj.GetComponent<TrainStop>();
-        trainStops.Add(pos, newStop);
+        if (obj != null)
+        {
+            GameObject newobj = Instantiate(obj, ToCellCenter(pos), rotation, gridObj.transform);
+            TrainStop newStop = newobj.GetComponent<TrainStop>();
+            trainStops.Add(pos, newStop);
+            changedSignals = true;
 
-        if (newStop.GetStopType()==TrainStop.StopType.pickUp) {
-            for (int i = 0; i < allTowns.Length;i++) {
-                if ((newStop.transform.position - allTowns[i].transform.position).sqrMagnitude < 9 ) {
-                    newStop.ConnectTo(allTowns[i]);
+
+            if (newStop.GetStopType() == TrainStop.StopType.pickUp)
+            {
+                for (int i = 0; i < allTowns.Length; i++)
+                {
+                    if ((newStop.transform.position - allTowns[i].transform.position).sqrMagnitude < 9)
+                    {
+                        newStop.ConnectTo(allTowns[i]);
+                        allTowns[i].SetConnected(newStop);
+                    }
                 }
             }
         }
-        RefreshBlocks();
+
+        if (changedSignals)
+        {
+            RefreshBlocks();
+        }
     }
 }
