@@ -63,6 +63,10 @@ public class CamScript : MonoBehaviour {
         }
 	}
 
+    public float GetScale() {
+        return Mathf.Max(1, camSize / 5f);
+    }
+
     public void PlacingTiles(bool setTo) {
         placingTiles = setTo;
     }

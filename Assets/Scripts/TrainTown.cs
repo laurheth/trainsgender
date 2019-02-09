@@ -2,27 +2,51 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class TrainTown : MonoBehaviour, IPointerClickHandler {
+public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler {
 
     TrainTown[] allTowns;
     List<TrainsWoman> residents;
     //TrackController trackController;
     float nextTripRequest;
     bool connected;
+    //bool infoPanelOpen;
     TrainStop stop;
     string name;
+    float nameBoxTargSize;
+    float nameBoxSize;
+    float infoPanelSize;
+    float infoPanelTargSize;
+    public GameObject namePanel;
+    public GameObject infoPanelTextObj;
+    public GameObject infoPanel;
+    public GameObject nameTextObj;
+    RectTransform namePanelTransform;
+    RectTransform infoPanelTransform;
+    Text nameText;
+    Text infoPanelText;
+
+    CamScript camScript;
+    Vector3 panelScale;
+    Vector3 infoPanelVectSize;
     // Use this for initialization
     private void Awake()
     {
+        //infoPanelOpen = false;
         residents = new List<TrainsWoman>();
         connected = false;
         stop = null;
         name = "Town";
+        nameBoxTargSize = 0;
+        nameBoxSize = 0;
+        infoPanelSize = 0;
+        infoPanelVectSize = Vector3.zero;
+        infoPanelTargSize = 0;
     }
     void Start () {
         nextTripRequest = 0;
-
+        panelScale = Vector3.one;
         //trackController
         List<string> townNames = new List<string>();
         GameObject[] townObjs = GameObject.FindGameObjectsWithTag("Town");
@@ -42,8 +66,39 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler {
         gameObject.name = name;
 
         residents.Add(new TrainsWoman(this));
+        namePanelTransform = namePanel.GetComponent<RectTransform>();
+        nameText = nameTextObj.GetComponent<Text>();
+        nameText.text = name;
+        camScript = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CamScript>();
+        infoPanelTransform = infoPanel.GetComponent<RectTransform>();
+        infoPanelText = infoPanelTextObj.GetComponent<Text>();
 	}
-	
+
+    private void Update()
+    {
+        if (Mathf.Abs(nameBoxSize-nameBoxTargSize)>0.1) {
+            //Time.deltaTime*(nameBoxTargSize - nameBoxSize);
+            nameBoxSize += 4*Time.deltaTime * ((nameBoxTargSize - nameBoxSize));
+            if (Mathf.Abs((nameBoxTargSize - nameBoxSize))<0.5f) {
+                nameBoxSize = nameBoxTargSize;
+            }
+            namePanelTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, nameBoxSize);
+
+            panelScale = Vector3.one * camScript.GetScale();
+            namePanelTransform.localScale = panelScale;
+        }
+        if (!Mathf.Approximately(infoPanelSize,infoPanelTargSize)) {
+            infoPanelSize += 4 * Time.deltaTime * (infoPanelTargSize - infoPanelSize);
+            if (Mathf.Abs(infoPanelTargSize-infoPanelSize)<0.01) {
+                infoPanelSize = infoPanelTargSize;
+            }
+            infoPanelVectSize = camScript.GetScale() * infoPanelSize * Vector3.one;
+            infoPanelTransform.localScale = infoPanelVectSize;
+            //namePanelTransform.SetPositionAndRotation(new Vector3(0,infoPanelVectSize[1]), Quaternion.identity);
+            namePanelTransform.anchoredPosition = new Vector3(0, infoPanelVectSize[1]*infoPanelTransform.sizeDelta.y);
+        }
+    }
+
     public string GetName() {
         return name;
     }
@@ -76,6 +131,7 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler {
 	}*/
     public void AddResident(TrainsWoman newresident) {
         residents.Add(newresident);
+        newresident.SetTown(this);
     }
 
     public string GenName() {
@@ -103,10 +159,29 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler {
     {
         //Debug.Log("click!!");
         //camScript.PlaceTile();
-        foreach (TrainsWoman resident in residents)
+        string msg = "";
+        //foreach (TrainsWoman resident in residents)
+        for (int i = 0; i < residents.Count;i++)
         {
-            Debug.Log(resident.Description());
+            //Debug.Log(resident.Description());
+            if (i>0) {
+                msg += "\n";
+            }
+            msg += residents[i].Description();
         }
+        infoPanelTargSize=1;
+        infoPanelText.text = msg;
+        //infoPanelTargSize//
+    }
+
+    public void OnPointerEnter(PointerEventData eventData) {
+        nameBoxTargSize = 32;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        nameBoxTargSize = 0;
+        infoPanelTargSize = 0;
     }
 
     public void SetConnected(TrainStop newstop) {
@@ -139,6 +214,7 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler {
 
 public class TrainsWoman {
     TrainTown homeTown;
+    TrainTown currentTown;
     string name;
     TrainsWoman girlFriend;
     float nextTripRequest;
@@ -147,6 +223,7 @@ public class TrainsWoman {
     public TrainsWoman(TrainTown home, TrainsWoman gf=null) {
         name = home.GenName();
         homeTown = home;
+        currentTown = home;
         if (gf!=null) {
             girlFriend = gf;
             wantsToTravel = false;
@@ -164,8 +241,8 @@ public class TrainsWoman {
     }
 
     public void LeaveTown() {
-        homeTown.LeaveTown(this);
-        homeTown = null;
+        currentTown.LeaveTown(this);
+        currentTown = null;
     }
 
     public bool WantsToTravel() {
@@ -177,7 +254,20 @@ public class TrainsWoman {
     }
 
     public TrainTown GetTown() {
+        return currentTown;
+    }
+
+    public TrainTown HomeTown() {
         return homeTown;
+    }
+
+    public void SetTown(TrainTown newTown) {
+        currentTown = newTown;
+    }
+
+    public void DoneTravelling() {
+        wantsToTravel = false;
+        nextTripRequest = Time.time + 120f;
     }
 
     public string Description() {
@@ -187,7 +277,14 @@ public class TrainsWoman {
             msg += " wants to go to "+ girlFriend.GetTown().GetName() +" to visit " + girlFriend.GetName()+"!";
         }
         else {
-            msg += " is waiting for " + girlFriend.GetName() + " to visit!";
+            if ((girlFriend.GetTown() != null && currentTown != null) && girlFriend.GetTown().GetName() == currentTown.GetName())
+            {
+                msg += " is happy in " + currentTown.GetName() + " with " + girlFriend.GetName() + "!";
+            }
+            else
+            {
+                msg += " is waiting for " + girlFriend.GetName() + " to visit!";
+            }
         }
         return msg;
     }

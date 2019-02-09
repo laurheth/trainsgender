@@ -427,24 +427,19 @@ public partial class TrainMover : MonoBehaviour {
             FindPath(Target, Vector3Int.RoundToInt(nextDirection.normalized));
         }
         if (head && trackController.GetPosInt(transform.position)==Target) {
-            if (pickingUp) {
-                pickingUp = false;
-                if (TargetStop != null && passenger==null)
-                {
+            if (TargetStop!=null) {
+                if (passenger==null) {
                     passenger = TargetStop.GetPassenger();
-                    if (passenger != null) {
+                    if (passenger != null)
+                    {
                         SetTargetStop(passenger.GetGF().GetTown().GetStop());
                         passenger.LeaveTown();
                     }
                 }
-            }
-            else {
-                pickingUp = true;
-                if (pickups.Count > 0)
-                {
-                    SetTargetStop(pickups[0]);
+                else {
+                    TargetStop.DropPassenger(passenger);
+                    passenger = null;
                 }
-                //StartCoroutine(PauseThenContinue(5f, pickups[0]));
             }
         }
         if (head && currentDist < TotalLength) {

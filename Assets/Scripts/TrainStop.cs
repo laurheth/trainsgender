@@ -201,4 +201,10 @@ public class TrainStop : MonoBehaviour {
         }
     }
 
+    public void DropPassenger(TrainsWoman passenger) {
+        town.AddResident(passenger);
+        //passenger.SetTown(town);
+        passenger.DoneTravelling();
+    }
+
 }
