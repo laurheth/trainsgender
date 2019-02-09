@@ -50,7 +50,7 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler {
 
     string GenTownName() {
         string newname;// = "";
-        switch (Mathf.FloorToInt(Random.Range(0,4)))
+        switch (Mathf.FloorToInt(Random.Range(0,10)))
         {
             case 0:
                 newname = "New ";
@@ -81,7 +81,8 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler {
     public string GenName() {
         string[] firstNames = { "Susan", "Zoe", "Jennifer", "Lauren",
             "Alexis", "Alex", "Emma", "Bonnie", "Evelyn", "Christine",
-        "Meghan", "Mary", "Carrie", "Daphne", "Bulma", "Velma","Betty","Betty"};
+        "Meghan", "Mary", "Carrie", "Daphne", "Bulma", "Velma","Betty","Betty",
+        "Jade","Deborah","Laura","Diana","Athena","Alana"};
         string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         return firstNames[Random.Range(0,firstNames.Length-1)]+
             " "+chars[Random.Range(0,chars.Length)];

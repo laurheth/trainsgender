@@ -369,6 +369,29 @@ public partial class TrainMover : MonoBehaviour {
         SetTargetStop(nextTarget);
     }
 
+    // Reset Position if fucked up
+    void ResetPositions() {
+        TrainMover backPart = prevCar;
+        while (backPart != null)
+        {
+            backPart.transform.position = transform.position;
+            backPart.currentDist = currentDist;
+            backPart.squareDist = squareDist;
+            backPart.squareLength = squareLength;
+            backPart.curved = curved;
+            backPart.desiredSpeed = desiredSpeed;
+            backPart.acceleration = acceleration;
+            backPart.StoppedByTile = StoppedByTile;
+            backPart.StoppedBySignal = StoppedBySignal;
+            backPart.noProperExit = noProperExit;
+            for (i = 0; i < positions.Length; i++)
+            {
+                backPart.positions[i] = positions[i];
+            }
+            backPart = backPart.prevCar;
+        }
+    }
+
 	// Update is called once per frame
 	void Update () {
         if (noProperExit) {
@@ -380,7 +403,15 @@ public partial class TrainMover : MonoBehaviour {
                 StoppedByTile = Vector3Int.one;
                 acceleration = GetAcceleration(maxSpeed, speed);
             }
-        } 
+        }
+
+        if (prevCar != null)
+        {
+            if ((transform.position - prevCar.transform.position).sqrMagnitude > 3)
+            {
+                ResetPositions();
+            }
+        }
 
         if (StoppedBySignal != null) {
             if (StoppedBySignal.IsPassable() == true) {
