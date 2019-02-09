@@ -47,6 +47,8 @@ public partial class TrainMover : MonoBehaviour {
 
     TrainsWoman passenger;
 
+    UIScript uIScript;
+
     // Use this for initialization
     private void Awake()
     {
@@ -100,6 +102,8 @@ public partial class TrainMover : MonoBehaviour {
         dropoffs = trackController.GetStops(TrainStop.StopType.dropOff);
         SetTargetStop(pickups[0]);
         pickingUp = true;
+
+        uIScript = GameObject.FindGameObjectWithTag("GUI").GetComponent<UIScript>();
 	}
 
     public struct TurnKey {
@@ -438,6 +442,7 @@ public partial class TrainMover : MonoBehaviour {
                 }
                 else {
                     TargetStop.DropPassenger(passenger);
+                    uIScript.AddLove();
                     passenger = null;
                 }
             }

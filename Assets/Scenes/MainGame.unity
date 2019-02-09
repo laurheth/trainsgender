@@ -887,9 +887,10 @@ GameObject:
   - component: {fileID: 272114540}
   - component: {fileID: 272114539}
   - component: {fileID: 272114538}
+  - component: {fileID: 272114542}
   m_Layer: 5
   m_Name: Canvas
-  m_TagString: Untagged
+  m_TagString: GUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -971,6 +972,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &272114542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 272114537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79756f6b2774746c5b9982741e363f6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  loveObj: {fileID: 317818934}
 --- !u!1 &299683169
 GameObject:
   m_ObjectHideFlags: 0
@@ -1122,7 +1135,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 1
+  m_Text: 0
 --- !u!222 &317818937
 CanvasRenderer:
   m_ObjectHideFlags: 0

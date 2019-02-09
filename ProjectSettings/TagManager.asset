@@ -8,6 +8,7 @@ TagManager:
   - TrainChunk
   - Town
   - TrackController
+  - GUI
   layers:
   - Default
   - TransparentFX
