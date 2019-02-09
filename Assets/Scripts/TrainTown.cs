@@ -26,6 +26,7 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
     RectTransform infoPanelTransform;
     Text nameText;
     Text infoPanelText;
+    TrainMover bookedBy;
 
     CamScript camScript;
     Vector3 panelScale;
@@ -33,6 +34,7 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
     // Use this for initialization
     private void Awake()
     {
+        bookedBy = null;
         //infoPanelOpen = false;
         residents = new List<TrainsWoman>();
         connected = false;
@@ -97,6 +99,19 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
             //namePanelTransform.SetPositionAndRotation(new Vector3(0,infoPanelVectSize[1]), Quaternion.identity);
             namePanelTransform.anchoredPosition = new Vector3(0, infoPanelVectSize[1]*infoPanelTransform.sizeDelta.y);
         }
+        if (bookedBy!=null) {
+            if (bookedBy.GetTargetStop().GridPosition() != stop.GridPosition()) {
+                bookedBy = null;
+            }
+        }
+    }
+
+    public void Book(TrainMover booker) {
+        bookedBy = booker;
+    }
+
+    public TrainMover GetBooker() {
+        return bookedBy;
     }
 
     public string GetName() {

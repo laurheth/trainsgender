@@ -40,8 +40,8 @@ public partial class TrainMover : MonoBehaviour {
     int i, j;
 
     TrainStop TargetStop;
-    List<TrainStop> pickups;
-    List<TrainStop> dropoffs;
+    //List<TrainStop> pickups;
+    //List<TrainStop> dropoffs;
     TrainStop StoppedBySignal;
     Vector3Int StoppedByTile;
 
@@ -56,8 +56,8 @@ public partial class TrainMover : MonoBehaviour {
         StoppedByTile = Vector3Int.one;
         StoppedBySignal = null;
         TargetStop = null;
-        pickups = null;
-        dropoffs = null;
+        //pickups = null;
+        //dropoffs = null;
         turnLog = null;
     }
     void Start () {
@@ -98,9 +98,9 @@ public partial class TrainMover : MonoBehaviour {
 
         }
         TotalLength = GetLength()+0.5f;
-        pickups = trackController.GetStops(TrainStop.StopType.pickUp);
-        dropoffs = trackController.GetStops(TrainStop.StopType.dropOff);
-        SetTargetStop(pickups[0]);
+        //pickups = trackController.GetStops(TrainStop.StopType.pickUp);
+        //dropoffs = trackController.GetStops(TrainStop.StopType.dropOff);
+        //SetTargetStop(pickups[0]);
         pickingUp = true;
 
         uIScript = GameObject.FindGameObjectWithTag("GUI").GetComponent<UIScript>();
@@ -120,10 +120,14 @@ public partial class TrainMover : MonoBehaviour {
         return Mathf.Abs((Vf * Vf - Vo * Vo) / (2f * dist));
     }
 
-    void SetTargetStop(TrainStop stop) {
+    public void SetTargetStop(TrainStop stop) {
         TargetStop = stop;
         Target = stop.GridPosition();
         FindPathToTarget = true;
+    }
+
+    public TrainStop GetTargetStop() {
+        return TargetStop;
     }
 
     public void PassDownTurnLog(Dictionary<TurnKey,float> turnDictRef) {
@@ -432,6 +436,7 @@ public partial class TrainMover : MonoBehaviour {
         }
         if (head && trackController.GetPosInt(transform.position)==Target) {
             if (TargetStop!=null) {
+                TargetStop.Connection().Book(null);
                 if (passenger==null) {
                     passenger = TargetStop.GetPassenger();
                     if (passenger != null)
@@ -444,7 +449,9 @@ public partial class TrainMover : MonoBehaviour {
                     TargetStop.DropPassenger(passenger);
                     uIScript.AddLove();
                     passenger = null;
+                    TargetStop = null;
                 }
+                //TargetStop = null;
             }
         }
         if (head && currentDist < TotalLength) {

@@ -6,10 +6,11 @@ using UnityEngine;
 // Pathfinding
 public partial class TrainMover : MonoBehaviour {
 
-    public void FindPath() {
-        FindPath(Target, Vector3Int.RoundToInt(nextDirection.normalized));
+    public bool FindPath() {
+        return FindPath(Target, Vector3Int.RoundToInt(nextDirection.normalized));
     }
-    public void FindPath(Vector3Int target, Vector3Int startDirection) {
+    public bool FindPath(Vector3Int target, Vector3Int startDirection) {
+        bool success = false;
         turnLog.Clear();
         int breaker = 0;
         PathTile targetTile = new PathTile(target, null, target,false,Vector3Int.zero,null);
@@ -73,6 +74,7 @@ public partial class TrainMover : MonoBehaviour {
         }
         //Debug.Log(breaker);
         if (ClosedList.Contains(targetTile)) {
+            success = true;
             PathTile thisTile = ClosedList[ClosedList.Count - 1];
             Vector3Int ForwardDir;
             float angle = 0;
@@ -93,6 +95,7 @@ public partial class TrainMover : MonoBehaviour {
             //Debug.Log(msg);
 
         }
+        return success;
     }
 
     // Class for defining cost and position of each tile, as well as sorting method

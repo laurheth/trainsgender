@@ -192,6 +192,10 @@ public class TrainStop : MonoBehaviour {
         }
     }
 
+    public TrainTown Connection() {
+        return town;
+    }
+
     public TrainsWoman GetPassenger() {
         if (town != null) {
             return town.GetTraveller();

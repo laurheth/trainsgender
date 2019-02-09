@@ -9,7 +9,7 @@ public class TrackController : MonoBehaviour
     //GameObject underlayobj;
     //Tilemap underlay;
     TrainTown[] allTowns;
-    List<TrainMover> allTrains;
+    //List<TrainMover> allTrains;
     Grid grid;
     public GameObject gridObj;
     public GameObject camobj;
