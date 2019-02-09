@@ -61,6 +61,10 @@ public class CamScript : MonoBehaviour {
         if (placingTiles) {
             PlaceTile();
         }
+
+        if (Input.GetButtonDown("Cancel")) {
+            tileCursor.Clear();
+        }
 	}
 
     public float GetScale() {

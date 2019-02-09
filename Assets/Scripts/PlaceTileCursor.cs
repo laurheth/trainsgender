@@ -17,6 +17,7 @@ public class PlaceTileCursor : MonoBehaviour, IPointerClickHandler, IPointerDown
     {
         spriteRend = GetComponent<SpriteRenderer>();
         camScript = cam.GetComponent<CamScript>();
+        selected = false;
     }
 
     public void SetSprite(Sprite sprite) {
@@ -35,6 +36,13 @@ public class PlaceTileCursor : MonoBehaviour, IPointerClickHandler, IPointerDown
         return selected;
     }
 
+    public void Clear () {
+        SetSprite(null);
+        tileToPlace = null;
+        objToPlace = null;
+        selected = false;
+    }
+
     public void SetSelected(bool setto) {
         selected = setto;
     }
@@ -42,14 +50,14 @@ public class PlaceTileCursor : MonoBehaviour, IPointerClickHandler, IPointerDown
     public void OnPointerClick(PointerEventData eventData)
     {
         //Debug.Log("click!!");
-        if (objToPlace != null)
+        if (selected && objToPlace != null)
         {
             camScript.PlaceTile();
         }
     }
 
     public void OnPointerDown(PointerEventData eventData) {
-        if (objToPlace == null)
+        if (selected && objToPlace == null)
         {
             camScript.PlacingTiles(true);
         }

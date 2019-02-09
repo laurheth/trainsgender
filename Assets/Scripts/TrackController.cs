@@ -327,10 +327,13 @@ public class TrackController : MonoBehaviour
     }
 
     public void SetTile(Vector3Int pos, TileBase tile, Quaternion rotation) {
-        if (GetTile(pos) == null || (GetTile(pos).name != tile.name || Quaternion.Angle(TileRotation(pos),rotation)>5))
+        if (tile==null || GetTile(pos) == null || (GetTile(pos).name != tile.name || Quaternion.Angle(TileRotation(pos),rotation)>5))
         {
             tilemap.SetTile(pos, tile);
-            tilemap.SetTransformMatrix(pos, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
+            if (tile != null)
+            {
+                tilemap.SetTransformMatrix(pos, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
+            }
         }
     }
 
