@@ -66,7 +66,7 @@ public partial class TrainMover : MonoBehaviour {
                     if (exits[i] == ClosedList[ClosedList.Count - 1].GetPos() - startDirection) { continue; }
                     if (trackController.GetStop(exits[i]) != null)
                     {
-                        if (Vector3.Dot(trackController.GetStop(exits[i]).Direction(), startDirection) < 0)
+                        if (Vector3.Dot(trackController.GetStop(exits[i]).Direction(), exits[i]-ClosedList[ClosedList.Count - 1].GetPos()) < 0)
                         {
                             //Debug.Log(breaker + " " + ClosedList[ClosedList.Count - 1].GetPos());
                             continue;
