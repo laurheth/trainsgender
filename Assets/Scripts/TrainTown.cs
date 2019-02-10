@@ -361,6 +361,9 @@ public class TrainsWoman {
         if (specialVisit != null) {
             return specialVisit;
         }
+        else if (currentTown != null && currentTown.GetName()!=homeTown.GetName()) {
+            return homeTown;
+        }
         else if ((girlFriend.GetTown() != null && currentTown != null) && girlFriend.GetTown().GetName() != currentTown.GetName()) {
             return girlFriend.GetTown();
         }
