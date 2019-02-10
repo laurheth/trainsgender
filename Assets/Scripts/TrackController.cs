@@ -11,6 +11,7 @@ public class TrackController : MonoBehaviour
     TrainTown[] allTowns;
     List<Transform> allTrains;
     Grid grid;
+    //bool DoRefresh;
     public GameObject gridObj;
     public GameObject camobj;
     public Vector3 direction;
@@ -20,6 +21,7 @@ public class TrackController : MonoBehaviour
     // Use this for initialization
     void Awake()
     {
+        //DoRefresh = false;
         tilemap = GetComponent<Tilemap>();
         grid = gridObj.GetComponent<Grid>();
         //cam = camobj.GetComponent<Camera>();
@@ -401,7 +403,33 @@ public class TrackController : MonoBehaviour
 
         if (changedSignals)
         {
+            StartCoroutine(RefreshLoop());
+            //DoRefresh = true;
             RefreshBlocks();
         }
+    }
+
+    IEnumerator RefreshLoop() {
+        GameObject[] movers = GameObject.FindGameObjectsWithTag("TrainChunk");
+        List<TrainStop> stops = GetStops(TrainStop.StopType.signal);
+        int i, j;
+        bool noCollisions;
+        do
+        {
+            noCollisions = true;
+            for (i = 0; i < movers.Length; i++)
+            {
+                for (j = 0; j < stops.Count; j++)
+                {
+                    if (GetPosInt(movers[i].transform.position) == GetPosInt(stops[j].transform.position))
+                    {
+                        noCollisions = false;
+                    }
+                }
+            }
+            yield return null;
+        } while (!noCollisions);
+        RefreshBlocks();
+        yield return null;
     }
 }
