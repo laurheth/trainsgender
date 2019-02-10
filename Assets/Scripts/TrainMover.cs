@@ -343,7 +343,7 @@ public partial class TrainMover : MonoBehaviour {
                 else
                 {
                     //if (checkforstop == )
-                    if (checkforstop.GridPosition() == TargetStop.GridPosition())
+                    if (TargetStop != null && checkforstop.GridPosition() == TargetStop.GridPosition())
                     {
                         TargetStop.ImpassableTemporarily(5f);
                     }
