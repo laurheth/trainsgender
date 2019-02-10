@@ -175,14 +175,21 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
         //Debug.Log("click!!");
         //camScript.PlaceTile();
         string msg = "";
-        //foreach (TrainsWoman resident in residents)
-        for (int i = 0; i < residents.Count;i++)
+
+        if (residents.Count > 0)
         {
-            //Debug.Log(resident.Description());
-            if (i>0) {
-                msg += "\n";
+            for (int i = 0; i < residents.Count; i++)
+            {
+                //Debug.Log(resident.Description());
+                if (i > 0)
+                {
+                    msg += "\n";
+                }
+                msg += residents[i].Description();
             }
-            msg += residents[i].Description();
+        }
+        else {
+            msg = "Nobody is home.";
         }
         infoPanelTargSize=1;
         infoPanelText.text = msg;
@@ -211,11 +218,40 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
     public TrainsWoman GetTraveller() {
         TrainsWoman toReturn=null;
         for (int i = 0; i < residents.Count;i++) {
-            if (residents[i].WantsToTravel() && residents[i].GetGF().GetTown().IsConnected()) {
+            if (residents[i].WantsToTravel() && residents[i].TargTown().IsConnected()) {
                 toReturn = residents[i];
             }
         }
         return toReturn;
+    }
+
+    public bool ContainsHostess() {
+        TrainsWoman toReturn = null;
+        for (int i = 0; i < residents.Count; i++)
+        {
+            if (residents[i].HomeBody() && residents[i].HomeTown().IsConnected())
+            {
+                toReturn = residents[i];
+            }
+        }
+        //return toReturn;
+        return toReturn != null;
+    }
+
+    public void InviteToParty(TrainTown venue, string reason) {
+        if (IsConnected()) {
+            for (int i = 0; i < residents.Count; i++)
+            {
+                residents[i].SetSpecial(venue, "for the " + reason + "!");
+                StartCoroutine(PartyOver(residents[i]));
+            }
+        }
+    }
+
+    IEnumerator PartyOver(TrainsWoman trainsWoman) {
+        yield return new WaitForSeconds(120);
+        trainsWoman.CancelSpecial();
+        yield return null;
     }
 
     public TrainStop GetStop() {
@@ -230,15 +266,19 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
 public class TrainsWoman {
     TrainTown homeTown;
     TrainTown currentTown;
+    TrainTown specialVisit;
+    string specialVisitText;
     string name;
     TrainsWoman girlFriend;
     float nextTripRequest;
     bool wantsToTravel;
+    bool homeBody;
 
-    public TrainsWoman(TrainTown home, TrainsWoman gf=null) {
+    public TrainsWoman(TrainTown home, TrainsWoman gf=null, bool likesHome=false) {
         name = home.GenName();
         homeTown = home;
         currentTown = home;
+        homeBody = likesHome;
         if (gf!=null) {
             girlFriend = gf;
             wantsToTravel = false;
@@ -246,9 +286,11 @@ public class TrainsWoman {
         else {
             wantsToTravel = true;
             TrainTown other = home.ChooseOtherTown();
-            girlFriend = new TrainsWoman(other, this);
+            girlFriend = new TrainsWoman(other, this,true);
             other.AddResident(girlFriend);
         }
+        specialVisit = null;
+        specialVisitText = "";
     }
 
     public string GetName() {
@@ -261,7 +303,42 @@ public class TrainsWoman {
     }
 
     public bool WantsToTravel() {
+        if (!wantsToTravel)
+        {
+            
+            if (Time.time > nextTripRequest)
+            {
+                if (!homeBody || (currentTown != null && currentTown.GetName() != homeTown.GetName()))
+                {
+                    wantsToTravel = true;
+                }
+            }
+        }
+        if (specialVisit != null && currentTown != null) {
+            if (specialVisit.GetName() != currentTown.GetName())
+            {
+                wantsToTravel = true;
+            }
+            else {
+                wantsToTravel = false;
+            }
+
+        }
         return wantsToTravel;
+    }
+
+    public void SetSpecial(TrainTown tovisit, string reason) {
+        
+        specialVisit = tovisit;
+        specialVisitText = reason;
+        //StartCoroutine(this.CancelSpecial());
+    }
+
+    public void CancelSpecial() {
+        //yield return new WaitForSeconds(120);
+        specialVisit = null;
+        specialVisitText = "";
+        //yield return null;
     }
 
     public TrainsWoman GetGF() {
@@ -276,29 +353,67 @@ public class TrainsWoman {
         return homeTown;
     }
 
+    public bool HomeBody() {
+        return homeBody;
+    }
+
+    public TrainTown TargTown() {
+        if (specialVisit != null) {
+            return specialVisit;
+        }
+        else if ((girlFriend.GetTown() != null && currentTown != null) && girlFriend.GetTown().GetName() != currentTown.GetName()) {
+            return girlFriend.GetTown();
+        }
+        else {
+            return homeTown;
+        }
+    }
+
     public void SetTown(TrainTown newTown) {
         currentTown = newTown;
+        if (specialVisit != null && newTown.GetName()==specialVisit.GetName()) {
+            specialVisit = null;
+        }
     }
 
     public void DoneTravelling() {
         wantsToTravel = false;
-        nextTripRequest = Time.time + 120f;
+        nextTripRequest = Time.time + 60f;
     }
 
     public string Description() {
         string msg = "";
         msg += name;
-        if (wantsToTravel) {
-            msg += " wants to go to "+ girlFriend.GetTown().GetName() +" to visit " + girlFriend.GetName()+"!";
+        if (WantsToTravel()) {
+            msg += " wants to go to " + TargTown().GetName();// +" to visit " + girlFriend.GetName()+"!";
+            if (specialVisit != null) {
+                msg += " " + specialVisitText;
+            }
+            else if (TargTown().GetName() == girlFriend.GetTown().GetName()) {
+                msg += " to visit " + girlFriend.GetName() + "!";
+            }
+            else {
+                msg += " to get some rest!";
+            }
         }
         else {
-            if ((girlFriend.GetTown() != null && currentTown != null) && girlFriend.GetTown().GetName() == currentTown.GetName())
-            {
-                msg += " is happy in " + currentTown.GetName() + " with " + girlFriend.GetName() + "!";
+            if (currentTown!=null && currentTown.GetName()==homeTown.GetName() && specialVisit==null) {
+                if (girlFriend.GetTown() != null && girlFriend.GetTown().GetName() == currentTown.GetName())
+                {
+                    msg += " is happy in " + currentTown.GetName() + " with " + girlFriend.GetName() + "!";
+                }
+                else {
+                    if (homeBody)
+                    {
+                        msg += " is waiting for " + girlFriend.GetName() + " to visit from " + girlFriend.HomeTown().GetName() + " !";
+                    }
+                    else {
+                        msg += " is getting some sleep before wanting to visit " + girlFriend.GetName() + " again!";
+                    }
+                }
             }
-            else
-            {
-                msg += " is waiting for " + girlFriend.GetName() + " to visit!";
+            else  {
+                msg += " is having a very nice time!";
             }
         }
         return msg;

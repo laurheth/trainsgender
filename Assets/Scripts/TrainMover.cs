@@ -441,7 +441,7 @@ public partial class TrainMover : MonoBehaviour {
                     passenger = TargetStop.GetPassenger();
                     if (passenger != null)
                     {
-                        SetTargetStop(passenger.GetGF().GetTown().GetStop());
+                        SetTargetStop(passenger.TargTown().GetStop());
                         passenger.LeaveTown();
                     }
                 }

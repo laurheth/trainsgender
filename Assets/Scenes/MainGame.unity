@@ -984,6 +984,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   loveObj: {fileID: 317818934}
+  specialTimeRange:
+  - 120
+  - 180
 --- !u!1 &299683169
 GameObject:
   m_ObjectHideFlags: 0
