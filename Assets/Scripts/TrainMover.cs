@@ -257,8 +257,8 @@ public partial class TrainMover : MonoBehaviour  {
 
         if (noProperExit) {
             Debug.Log("No proper exit!!!!");
-            //positions[2] = (trackController.GetPosInt(transform.position) - Vector3Int.RoundToInt(enterDirection));
-            //return;
+            positions[2] = (trackController.GetPosInt(transform.position) - Vector3Int.RoundToInt(enterDirection));
+            return;
         }
         startInd = minDists[0];
         targInd = minDists[1];
@@ -336,29 +336,29 @@ public partial class TrainMover : MonoBehaviour  {
 
         TrainStop checkforstop = trackController.GetStop(trackController.GetPosInt(transform.position)
                                                        + Vector3Int.RoundToInt(nextDirection));
-        if ( checkforstop != null)
+        if (checkforstop != null)
         {
-            if (head)
+
+
+            if (checkforstop.IsPassable() && (TargetStop == null || checkforstop.GridPosition() != TargetStop.GridPosition()))
             {
-                if (checkforstop.IsPassable() && (TargetStop == null  || checkforstop.GridPosition() != TargetStop.GridPosition()))
-                {
-                    
-                    checkforstop.Enter();
-                }
-                else
-                {
-                    //if (checkforstop == )
-                    if (TargetStop != null && checkforstop.GridPosition() == TargetStop.GridPosition())
-                    {
-                        TargetStop.ImpassableTemporarily(5f);
-                    }
-                    //Debug.Log("Stop??");
-                    //speed = 0f;
-                    acceleration = GetAcceleration(0f, speed);
-                    StoppedBySignal = checkforstop;
-                }
+
+                checkforstop.Enter();
             }
-            else if (prevCar == null)
+            else if (head)
+            {
+                //if (checkforstop == )
+                if (TargetStop != null && checkforstop.GridPosition() == TargetStop.GridPosition())
+                {
+                    TargetStop.ImpassableTemporarily(5f);
+                }
+                //Debug.Log("Stop??");
+                //speed = 0f;
+                acceleration = GetAcceleration(0f, speed);
+                StoppedBySignal = checkforstop;
+            }
+
+            if (prevCar == null)
             {
                 //Debug.Log("Deactivating:");
                 //Debug.Log(trackController.GetPosInt(transform.position));

@@ -43,6 +43,19 @@ public class UIScript : MonoBehaviour {
         NextSpecial();
 	}
 
+    public void UpdateTrainList() {
+        allTrains.Clear();
+        TrainMover trainMover;
+        foreach (GameObject train in GameObject.FindGameObjectsWithTag("TrainChunk"))
+        {
+            trainMover = train.GetComponent<TrainMover>();
+            if (trainMover.head)
+            {
+                allTrains.Add(trainMover);
+            }
+        }
+    }
+
     void NextSpecial() {
         specialTime = Time.time + Random.Range(specialTimeRange[0]/2f,specialTimeRange[1]/2f)
                           + Random.Range(specialTimeRange[0] / 2f, specialTimeRange[1] / 2f);

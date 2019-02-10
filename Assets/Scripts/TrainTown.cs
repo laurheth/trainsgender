@@ -100,7 +100,7 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
             namePanelTransform.anchoredPosition = new Vector3(0, infoPanelVectSize[1]*infoPanelTransform.sizeDelta.y);
         }
 
-        /*if (bookedBy!=null) {
+        if (bookedBy!=null) {
             if (stop != null)
             {
                 if (bookedBy.GetTargetStop() == null || bookedBy.GetTargetStop().GridPosition() != stop.GridPosition())
@@ -108,7 +108,7 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
                     bookedBy = null;
                 }
             }
-        }*/
+        }
     }
 
     public void Book(TrainMover booker) {
@@ -397,7 +397,7 @@ public class TrainsWoman {
             if (specialVisit != null) {
                 msg += " " + specialVisitText;
             }
-            else if (TargTown().GetName() == girlFriend.GetTown().GetName()) {
+            else if (girlFriend.GetTown()!= null && TargTown().GetName() == girlFriend.GetTown().GetName()) {
                 msg += " to visit " + girlFriend.GetName() + "!";
             }
             else {
