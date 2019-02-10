@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+//using UnityEngine.EventSystems;
 
-public partial class TrainMover : MonoBehaviour {
+public partial class TrainMover : MonoBehaviour  {
     public GameObject trackObj;
     public GameObject prevCarObj;
     public float prevCarDist;
@@ -31,6 +32,7 @@ public partial class TrainMover : MonoBehaviour {
     bool pickingUp;
     bool noProperExit;
     bool onHold;
+    bool collided;
     Vector3 pivot;
     Vector3 trackDirection;
     Vector3 nextDirection;
@@ -53,6 +55,7 @@ public partial class TrainMover : MonoBehaviour {
     // Use this for initialization
     private void Awake()
     {
+        collided = false;
         onHold = false;
         noProperExit = false;
         StoppedByTile = Vector3Int.one;
@@ -70,6 +73,7 @@ public partial class TrainMover : MonoBehaviour {
             trackObj = GameObject.FindGameObjectWithTag("TrackController");
         }
         trackController = trackObj.GetComponent<TrackController>();
+        trackController.AddSelfToTrainList(this);
         //transform.position=trackController
         squareDist = 0f;
         speed = 0f;
@@ -250,10 +254,11 @@ public partial class TrainMover : MonoBehaviour {
                 minDists[1] = 1;
             }
         }
+
         if (noProperExit) {
             Debug.Log("No proper exit!!!!");
-            positions[2] = (trackController.GetPosInt(transform.position) - Vector3Int.RoundToInt(enterDirection));
-            return;
+            //positions[2] = (trackController.GetPosInt(transform.position) - Vector3Int.RoundToInt(enterDirection));
+            //return;
         }
         startInd = minDists[0];
         targInd = minDists[1];
@@ -361,6 +366,10 @@ public partial class TrainMover : MonoBehaviour {
                 checkforstop.Exit();
             }
         }
+        if (trackController.CheckCollision(this))
+        {
+            collided = true;
+        }
     }
 
     void UpdatePosition() {
@@ -403,6 +412,7 @@ public partial class TrainMover : MonoBehaviour {
             backPart.noProperExit = noProperExit;
             backPart.nextDirection = nextDirection;
             backPart.nextDirectionRev = nextDirectionRev;
+            backPart.trackDirection = trackDirection;
             for (i = 0; i < positions.Length; i++)
             {
                 backPart.positions[i] = positions[i];
@@ -419,9 +429,21 @@ public partial class TrainMover : MonoBehaviour {
         onHold = false;
     }
 
+    public void Kick() {
+        acceleration = GetAcceleration(maxSpeed, speed);
+        if (StoppedBySignal != null)
+        {
+            StoppedBySignal.Enter();
+        }
+        StoppedBySignal = null;
+    }
+
 	// Update is called once per frame
 	void Update () {
-        
+        if (collided) {
+            collided = trackController.CheckCollision(this);
+            speed = 0;
+        }
         if (noProperExit) {
             acceleration = GetAcceleration(maxSpeed, speed);
             speed = 0;

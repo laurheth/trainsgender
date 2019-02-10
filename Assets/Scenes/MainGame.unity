@@ -2046,10 +2046,6 @@ Prefab:
       propertyPath: trackObj
       value: 
       objectReference: {fileID: 1610389693}
-    - target: {fileID: 1717353720128674, guid: 53fac310024d24dcca8bdbbbbfd8f0e7, type: 2}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 53fac310024d24dcca8bdbbbbfd8f0e7, type: 2}
   m_IsPrefabAsset: 0

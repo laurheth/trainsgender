@@ -9,7 +9,7 @@ public class TrackController : MonoBehaviour
     //GameObject underlayobj;
     //Tilemap underlay;
     TrainTown[] allTowns;
-    //List<TrainMover> allTrains;
+    List<Transform> allTrains;
     Grid grid;
     public GameObject gridObj;
     public GameObject camobj;
@@ -32,7 +32,7 @@ public class TrackController : MonoBehaviour
             trainStops.Add(grid.WorldToCell(obj.transform.position), newStop);
         }
         stopBlocks = new List<StopBlock>();
-
+        allTrains = new List<Transform>();
     }
 
     /*private void Start()
@@ -49,6 +49,23 @@ public class TrackController : MonoBehaviour
         {
             allTowns[i] = townObjs[i].GetComponent<TrainTown>();
         }
+    }
+
+    public void AddSelfToTrainList(TrainMover mover) {
+        allTrains.Add(mover.transform);
+    }
+
+    public bool CheckCollision(TrainMover mover) {
+        Transform thisOne = mover.transform;
+        Vector3Int checkPos=GetPosInt(thisOne.position);
+        for (int i = 0; i < allTrains.Count;i++) {
+            if (allTrains[i].parent != thisOne.parent) {
+                if (GetPosInt(allTrains[i].position) == checkPos) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     void RefreshBlocks() {
