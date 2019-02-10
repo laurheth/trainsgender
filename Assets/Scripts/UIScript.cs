@@ -15,8 +15,12 @@ public class UIScript : MonoBehaviour {
     float specialTime;
     public float[] specialTimeRange;
 
+    public GameObject trackControlObj;
+    TrackController trackController;
+
 	// Use this for initialization
 	void Start () {
+        trackController = trackControlObj.GetComponent<TrackController>();
         love = 0;
         loveTxt = loveObj.GetComponent<Text>();
 
@@ -73,7 +77,8 @@ public class UIScript : MonoBehaviour {
         }
         // Check if any trains need a target
         //for (i = 0; i < allTrains.Count;i++) {
-        if (allTrains[i].GetTargetStop() == null)
+
+        if (allTrains[i].GetTargetStop() == null || allTrains[i].GetTargetStop().Connection() == null)
         {
             for (j = 0; j < allTowns.Length; j++)
             {
@@ -83,10 +88,20 @@ public class UIScript : MonoBehaviour {
                     {
                         allTrains[i].SetTargetStop(allTowns[j].GetStop());
                         allTowns[j].Book(allTrains[i]);
+                        allTrains[i].ReleaseHold();
                     }
                 }
             }
+
+
+            // If still null, maybe find a train yard to chill in? (i.e. non-town train stop)
+            if (!allTrains[i].OnHold() &&
+                (allTrains[i].GetTargetStop() == null || !allTrains[i].GetTargetStop().IsPassable()))
+            {
+                allTrains[i].SetTargetStop(trackController.TrainYard());
+            }
         }
+
         i++;
         if (i >= allTrains.Count) { i = 0; }
         //}

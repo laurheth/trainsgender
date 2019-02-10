@@ -30,6 +30,7 @@ public partial class TrainMover : MonoBehaviour {
     bool curved;
     bool pickingUp;
     bool noProperExit;
+    bool onHold;
     Vector3 pivot;
     Vector3 trackDirection;
     Vector3 nextDirection;
@@ -52,6 +53,7 @@ public partial class TrainMover : MonoBehaviour {
     // Use this for initialization
     private void Awake()
     {
+        onHold = false;
         noProperExit = false;
         StoppedByTile = Vector3Int.one;
         StoppedBySignal = null;
@@ -122,8 +124,14 @@ public partial class TrainMover : MonoBehaviour {
 
     public void SetTargetStop(TrainStop stop) {
         TargetStop = stop;
-        Target = stop.GridPosition();
-        FindPathToTarget = true;
+        if (stop != null)
+        {
+            Target = stop.GridPosition();
+            FindPathToTarget = true;
+        }
+        else {
+            FindPathToTarget = false;
+        }
     }
 
     public TrainStop GetTargetStop() {
@@ -388,10 +396,13 @@ public partial class TrainMover : MonoBehaviour {
             backPart.squareLength = squareLength;
             backPart.curved = curved;
             backPart.desiredSpeed = desiredSpeed;
+            backPart.speed = speed;
             backPart.acceleration = acceleration;
             backPart.StoppedByTile = StoppedByTile;
             backPart.StoppedBySignal = StoppedBySignal;
             backPart.noProperExit = noProperExit;
+            backPart.nextDirection = nextDirection;
+            backPart.nextDirectionRev = nextDirectionRev;
             for (i = 0; i < positions.Length; i++)
             {
                 backPart.positions[i] = positions[i];
@@ -400,8 +411,17 @@ public partial class TrainMover : MonoBehaviour {
         }
     }
 
+    public bool OnHold() {
+        return onHold;
+    }
+
+    public void ReleaseHold() {
+        onHold = false;
+    }
+
 	// Update is called once per frame
 	void Update () {
+        
         if (noProperExit) {
             acceleration = GetAcceleration(maxSpeed, speed);
             speed = 0;
@@ -415,13 +435,16 @@ public partial class TrainMover : MonoBehaviour {
 
         if (prevCar != null)
         {
-            if ((transform.position - prevCar.transform.position).sqrMagnitude > 3)
+            if ((transform.position - prevCar.transform.position).sqrMagnitude > 2.5*prevCarDist)
             {
                 ResetPositions();
             }
         }
 
         if (StoppedBySignal != null) {
+            if (onHold) {
+                StoppedBySignal.Hold();
+            }
             if (StoppedBySignal.IsPassable() == true) {
                 //speed = desiredSpeed;
                 acceleration = GetAcceleration(maxSpeed, speed);
@@ -429,28 +452,38 @@ public partial class TrainMover : MonoBehaviour {
                 StoppedBySignal = null;
             }
         }
-        if (FindPathToTarget && head && currentDist>TotalLength) {
-            FindPathToTarget = false;
-            speed = Mathf.Abs(speed);
-            FindPath(Target, Vector3Int.RoundToInt(nextDirection.normalized));
-        }
+
         if (head && trackController.GetPosInt(transform.position)==Target) {
             if (TargetStop!=null) {
-                TargetStop.Connection().Book(null);
-                if (passenger==null) {
-                    passenger = TargetStop.GetPassenger();
-                    if (passenger != null)
-                    {
-                        SetTargetStop(passenger.TargTown().GetStop());
-                        passenger.LeaveTown();
-                    }
+                if (TargetStop.Connection() != null)
+                {
+                    TargetStop.Connection().Book(null);
                 }
                 else {
+                    onHold = true;
+                }
+                //Debug.Log("what the fuck");
+                if (passenger != null) {
                     TargetStop.DropPassenger(passenger);
                     uIScript.AddLove();
                     passenger = null;
-                    TargetStop = null;
+                    //TargetStop = null;
                 }
+                if (passenger==null) {
+                    //Debug.Log("pickup?");
+                    passenger = TargetStop.GetPassenger();
+                    if (passenger != null)
+                    {
+                        //Debug.Log("Picked up!");
+                        SetTargetStop(passenger.TargTown().GetStop());
+                        passenger.LeaveTown();
+                    }
+                    else {
+                        //Debug.Log("failed");
+                        TargetStop = null;
+                    }
+                }
+                //if
                 //TargetStop = null;
             }
         }
@@ -490,6 +523,18 @@ public partial class TrainMover : MonoBehaviour {
         else if (Mathf.Sign(speed)*(distCorrect + Time.deltaTime*speed) > 0) {
             squareDist += Time.deltaTime * speed;
             currentDist += Time.deltaTime * speed;
+        }
+
+        if (head && currentDist % 20 < Mathf.Abs(Time.deltaTime * speed)) {
+            Debug.Log("Rerun pathfinding");
+            FindPathToTarget = true;
+        }
+
+        if (FindPathToTarget && head && currentDist > TotalLength)
+        {
+            FindPathToTarget = false;
+            speed = Mathf.Abs(speed);
+            FindPath(Target, Vector3Int.RoundToInt(nextDirection.normalized), TargetStop);
         }
         /*else {
             squareDist -= Time.deltaTime * speed;

@@ -7,13 +7,26 @@ using UnityEngine;
 public partial class TrainMover : MonoBehaviour {
 
     public bool FindPath() {
-        return FindPath(Target, Vector3Int.RoundToInt(nextDirection.normalized));
+        if (TargetStop != null && Target == Vector3Int.RoundToInt(TargetStop.GridPosition()))
+        {
+            return FindPath(Target, Vector3Int.RoundToInt(nextDirection.normalized), TargetStop);
+        }
+        else {
+            return FindPath(Target, Vector3Int.RoundToInt(nextDirection.normalized));
+        }
     }
-    public bool FindPath(Vector3Int target, Vector3Int startDirection) {
+    public bool FindPath(Vector3Int target, Vector3Int startDirection,TrainStop targStop=null) {
         bool success = false;
-        turnLog.Clear();
+        //turnLog.Clear();
         int breaker = 0;
-        PathTile targetTile = new PathTile(target, null, target,false,Vector3Int.zero,null);
+        PathTile targetTile;
+        if (targStop == null)
+        {
+            targetTile = new PathTile(target, null, target, false, Vector3Int.zero, null);
+        }
+        else {
+            targetTile = new PathTile(target, null, target, true, Vector3Int.RoundToInt(targStop.Direction()),null);
+        }
         List<PathTile> ClosedList = new List<PathTile>();
         List<PathTile> OpenList = new List<PathTile>();
         Vector3Int[] exits;
@@ -80,10 +93,15 @@ public partial class TrainMover : MonoBehaviour {
             float angle = 0;
             breaker = 0;
             string msg="";
+            TurnKey nextKey;
             while (thisTile.GetPrevious()!=null && breaker<1000) {
                 msg += thisTile.GetPos();
                 ForwardDir = thisTile.GetPos();
-                turnLog.Add(new TurnKey(thisTile.GetPos(), thisTile.GetDirection()), angle);
+                nextKey = new TurnKey(thisTile.GetPos(), thisTile.GetDirection());
+                if (turnLog.ContainsKey(nextKey)){
+                    turnLog.Remove(nextKey);
+                }
+                turnLog.Add(nextKey, angle);
                 //turnLog.Add(thisTile.GetPos(), angle);
                 thisTile = thisTile.GetPrevious();
                 if (thisTile.GetPrevious()!=null) {
@@ -92,6 +110,7 @@ public partial class TrainMover : MonoBehaviour {
                 }
                 breaker++;
             }
+            
             //Debug.Log(msg);
 
         }
@@ -149,7 +168,7 @@ public partial class TrainMover : MonoBehaviour {
             if (previous != null)
             {
                 previousTile = previous;
-                travelCost = GetTravel() + 1;
+                travelCost = GetTravel() + tileCost;
             }
             else {
                 previousTile = null;

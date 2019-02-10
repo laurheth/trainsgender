@@ -18,6 +18,7 @@ public class TrainStop : MonoBehaviour {
     TrainTown town;
     List<TrainStop> ChainsFrom;
     List<TrainStop> ChainsInto;
+    float waitTime;
     // Use this for initialization
     private void Awake()
     {
@@ -126,12 +127,17 @@ public class TrainStop : MonoBehaviour {
         }
     }
 
+    public void Hold() {
+        //Debug.Log("holding");
+        waitTime += Time.deltaTime;
+    }
+
     IEnumerator ImpassableTemp(float wait) {
-        wait = Mathf.Abs(wait);
+        waitTime = Mathf.Abs(wait);
         SetPassable(false);
         //Enter();
-        while (wait>0) {
-            wait -= Time.deltaTime;
+        while (waitTime>0) {
+            waitTime -= Time.deltaTime;
             yield return null;
         }
         SetPassable(true);

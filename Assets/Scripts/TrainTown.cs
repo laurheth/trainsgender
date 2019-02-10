@@ -99,11 +99,16 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
             //namePanelTransform.SetPositionAndRotation(new Vector3(0,infoPanelVectSize[1]), Quaternion.identity);
             namePanelTransform.anchoredPosition = new Vector3(0, infoPanelVectSize[1]*infoPanelTransform.sizeDelta.y);
         }
-        if (bookedBy!=null) {
-            if (bookedBy.GetTargetStop().GridPosition() != stop.GridPosition()) {
-                bookedBy = null;
+
+        /*if (bookedBy!=null) {
+            if (stop != null)
+            {
+                if (bookedBy.GetTargetStop() == null || bookedBy.GetTargetStop().GridPosition() != stop.GridPosition())
+                {
+                    bookedBy = null;
+                }
             }
-        }
+        }*/
     }
 
     public void Book(TrainMover booker) {

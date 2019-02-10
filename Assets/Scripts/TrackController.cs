@@ -218,10 +218,25 @@ public class TrackController : MonoBehaviour
         }*/
     }
 
-    public List<TrainStop> GetStops(TrainStop.StopType type) {
+    public TrainStop TrainYard() {
+        List<TrainStop> yards = GetStops(TrainStop.StopType.pickUp, true);
+        TrainStop toReturn = null;
+        if (yards.Count>0) {
+            int breaker = 0;
+            do
+            {
+                toReturn = yards[Random.Range(0, yards.Count)];
+                breaker++;
+            } while (breaker < 5 && !toReturn.IsPassable());
+        }
+        return toReturn;
+    }
+
+    public List<TrainStop> GetStops(TrainStop.StopType type, bool onlyDisconnected=false) {
         List<TrainStop> toreturn = new List<TrainStop>();
         foreach (KeyValuePair<Vector3Int,TrainStop> stop in trainStops) {
             if (stop.Value.GetStopType() == type) {
+                if (!onlyDisconnected || stop.Value.Connection()==null)
                 toreturn.Add(stop.Value);
             }
         }
