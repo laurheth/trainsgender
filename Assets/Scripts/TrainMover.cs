@@ -121,7 +121,7 @@ public partial class TrainMover : MonoBehaviour  {
         }
     }
 
-    float GetAcceleration(float Vf, float Vo, float dist=1.9f) {
+    float GetAcceleration(float Vf, float Vo, float dist=1.6f) {
         desiredSpeed = Vf;
         return Mathf.Abs((Vf * Vf - Vo * Vo) / (2f * dist));
     }

@@ -167,12 +167,14 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
     public TrainTown ChooseOtherTown() {
         TrainTown toReturn;
         int breaker = 0;
-        Debug.Log(allTowns.Length);
+        float townRadius = transform.position.sqrMagnitude;
+        //Debug.Log(allTowns.Length);
         do
         {
             breaker++;
             toReturn = allTowns[Random.Range(0, allTowns.Length)];
-        } while (toReturn == this && breaker<1000);
+            townRadius *= 1.2f;
+        } while ((toReturn == this || toReturn.transform.position.sqrMagnitude>townRadius) && breaker < 1000);
         return toReturn;
     }
     public void OnPointerClick(PointerEventData eventData)

@@ -419,8 +419,10 @@ public class TrackController : MonoBehaviour
             noCollisions = true;
             for (i = 0; i < movers.Length; i++)
             {
+                if (movers[i] == null) { continue; }
                 for (j = 0; j < stops.Count; j++)
                 {
+                    if (stops[j] == null) { continue; }
                     if (GetPosInt(movers[i].transform.position) == GetPosInt(stops[j].transform.position))
                     {
                         noCollisions = false;
