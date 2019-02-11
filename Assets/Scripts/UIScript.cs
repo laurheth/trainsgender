@@ -18,8 +18,21 @@ public class UIScript : MonoBehaviour {
     public GameObject trackControlObj;
     TrackController trackController;
 
+    public GameObject notificationPanel;
+    public GameObject notificationText;
+
+    RectTransform notificationRect;
+    Text notifyText;
+    float notifyPos;
+    float notifyTime;
+
 	// Use this for initialization
 	void Start () {
+        notifyPos = 110;
+        notifyTime = 0;
+        notificationRect = notificationPanel.GetComponent<RectTransform>();
+        notifyText = notificationText.GetComponent<Text>();
+
         trackController = trackControlObj.GetComponent<TrackController>();
         love = 0;
         loveTxt = loveObj.GetComponent<Text>();
@@ -61,8 +74,21 @@ public class UIScript : MonoBehaviour {
                           + Random.Range(specialTimeRange[0] / 2f, specialTimeRange[1] / 2f);
     }
 
+    void Notification (string txt) {
+        notifyText.text = txt;
+        notifyTime = Time.time + 20;
+    }
+
     private void Update()
     {
+        if (Time.time < notifyTime) {
+            notifyPos = Mathf.Max(0, notifyPos - 100 * Time.deltaTime);
+            notificationRect.anchoredPosition = notifyPos * Vector3.up;
+        }
+        else if (notifyPos<110) {
+            notifyPos = Mathf.Min(120,notifyPos + 100 * Time.deltaTime);
+            notificationRect.anchoredPosition = notifyPos * Vector3.up;
+        }
         if (Time.time > specialTime) {
             NextSpecial();
             List<TrainTown> validVenues = new List<TrainTown>();
@@ -76,13 +102,16 @@ public class UIScript : MonoBehaviour {
                 string[] reasons ={
                     "Boardgame Night",
                     "Potluck",
-                    "Videogames",
+                    "Videogame Party",
                     "Party",
                     "Movie Night",
                     "Jam Session",
-                    "Cuddle Party"
+                    "Cuddle Party",
+                    "LAN Party",
+                    "RPG Night"
                 };
                 string reason = reasons[Random.Range(0, reasons.Length)];
+                Notification("A "+reason+" is being organized at "+venue.GetName()+"!");
                 for (j = 0; j < allTowns.Length;j++) {
                     allTowns[j].InviteToParty(venue, reason);
                 }
@@ -119,6 +148,8 @@ public class UIScript : MonoBehaviour {
         i++;
         if (i >= allTrains.Count) { i = 0; }
         //}
+
+
     }
 
     public void AddLove() {

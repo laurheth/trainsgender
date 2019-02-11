@@ -78,7 +78,7 @@ public class TrackController : MonoBehaviour
     {
         if (Time.time > upDate) {
             UpdateSignals();
-            upDate = Time.time + 5;
+            upDate = Time.time + 2.718281828f;
         }
     }
 

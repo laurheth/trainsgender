@@ -338,7 +338,10 @@ public partial class TrainMover : MonoBehaviour  {
                                                        + Vector3Int.RoundToInt(nextDirection));
         if (checkforstop != null)
         {
-
+            if (TargetStop != null && checkforstop.GridPosition() == Target)
+            {
+                checkforstop.ImpassableTemporarily(5f, this);
+            }
 
             if (checkforstop.IsPassable() && (TargetStop == null || checkforstop.GridPosition() != TargetStop.GridPosition()))
             {
@@ -348,10 +351,7 @@ public partial class TrainMover : MonoBehaviour  {
             else if (head)
             {
                 //if (checkforstop == )
-                if (TargetStop != null && checkforstop.GridPosition() == TargetStop.GridPosition())
-                {
-                    TargetStop.ImpassableTemporarily(5f,this);
-                }
+
                 //Debug.Log("Stop??");
                 //speed = 0f;
                 if (!checkforstop.IsChainPassable()) {
@@ -500,7 +500,7 @@ public partial class TrainMover : MonoBehaviour  {
                     TargetStop.Connection().Book(null);
                 }
                 else {
-                    //Debug.Log("Hold Activated");
+                    Debug.Log("Hold Activated");
                     onHold = true;
                 }
                 //Debug.Log("what the fuck");

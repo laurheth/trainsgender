@@ -134,7 +134,7 @@ public class TrainStop : MonoBehaviour {
     }
 
     public void Hold() {
-        Debug.Log("holding");
+        //Debug.Log("holding");
         waitTime += Time.deltaTime;
     }
 

@@ -27,6 +27,7 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
     Text nameText;
     Text infoPanelText;
     TrainMover bookedBy;
+    Image namePanelImage;
 
     CamScript camScript;
     Vector3 panelScale;
@@ -47,6 +48,7 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
         infoPanelTargSize = 0;
     }
     void Start () {
+
         nextTripRequest = 0;
         panelScale = Vector3.one;
         //trackController
@@ -70,6 +72,7 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
         residents.Add(new TrainsWoman(this));
         namePanelTransform = namePanel.GetComponent<RectTransform>();
         nameText = nameTextObj.GetComponent<Text>();
+        namePanelImage = namePanel.GetComponent<Image>();
         nameText.text = name;
         camScript = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CamScript>();
         infoPanelTransform = infoPanel.GetComponent<RectTransform>();
@@ -78,7 +81,11 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
 
     private void Update()
     {
+        if (Mathf.Approximately(nameBoxSize,0) && Mathf.Approximately(nameBoxSize, nameBoxTargSize)) {
+            namePanelImage.enabled = false;
+        }
         if (Mathf.Abs(nameBoxSize-nameBoxTargSize)>0.1) {
+            namePanelImage.enabled = true;
             //Time.deltaTime*(nameBoxTargSize - nameBoxSize);
             nameBoxSize += 4*Time.deltaTime * ((nameBoxTargSize - nameBoxSize));
             if (Mathf.Abs((nameBoxTargSize - nameBoxSize))<0.5f) {
