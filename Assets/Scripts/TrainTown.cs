@@ -145,8 +145,15 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
                 break;
         }
 
-        string[] prefix = { "Bark", "Meow", "Furry", "Lake", "Train", "Amazing", "Wood", "Log", "Face", "Gay", "Trans" };
-        string[] suffix = { "ton"," Town", "ville"," City"," Hollow", " Hill" };
+        string[] prefix = { "Bark", "Meow", "Furry", "Lake", "Train", "Amazing",
+            "Wood", "Log", "Face", "Gay", "Trans", "Chicken",
+            "Pelican", "Ostrich", "Goose", "Well", "Cloud", "Cat", "Dog", "Ferret",
+            "Dinosaur", "Music", "Anime"
+        };
+        string[] suffix = {
+            "ton"," Town", "ville"," City"," Hollow", " Hill",
+            " Village", " Coop", "fax", "don", "castle"
+        };
         newname += prefix[Random.Range(0, prefix.Length)];
         newname += suffix[Random.Range(0, suffix.Length)];
             
@@ -165,7 +172,8 @@ public class TrainTown : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
         string[] firstNames = { "Susan", "Zoe", "Jennifer", "Lauren",
             "Alexis", "Alex", "Emma", "Bonnie", "Evelyn", "Christine",
         "Meghan", "Mary", "Carrie", "Daphne", "Bulma", "Velma","Betty","Betty",
-        "Jade","Deborah","Laura","Diana","Athena","Alana"};
+        "Jade","Deborah","Laura","Diana","Athena","Alana","Natasha","Miriam",
+        "Calliope","Jane","Marnie","Josephine","Diane","Katie","Sarah","Beatrice"};
         string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         return firstNames[Random.Range(0,firstNames.Length-1)]+
             " "+chars[Random.Range(0,chars.Length)];
