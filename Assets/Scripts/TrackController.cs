@@ -16,11 +16,14 @@ public class TrackController : MonoBehaviour
     public GameObject camobj;
     public Vector3 direction;
     Dictionary<Vector3Int, TrainStop> trainStops;
+    Dictionary<Vector3Int, StopBlock> stopBlockDict;
     List<StopBlock> stopBlocks;
+    float upDate;
     //Camera cam;
     // Use this for initialization
     void Awake()
     {
+        upDate = 0;
         //DoRefresh = false;
         tilemap = GetComponent<Tilemap>();
         grid = gridObj.GetComponent<Grid>();
@@ -35,6 +38,7 @@ public class TrackController : MonoBehaviour
         }
         stopBlocks = new List<StopBlock>();
         allTrains = new List<Transform>();
+        stopBlockDict = new Dictionary<Vector3Int, StopBlock>();
     }
 
     /*private void Start()
@@ -70,7 +74,28 @@ public class TrackController : MonoBehaviour
         return false;
     }
 
+    private void Update()
+    {
+        if (Time.time > upDate) {
+            UpdateSignals();
+            upDate = Time.time + 5;
+        }
+    }
+
+    public void UpdateSignals() {
+        int i;
+        for (i = 0; i < stopBlocks.Count;i++) {
+            stopBlocks[i].Exit();
+        }
+        for (i = 0; i < allTrains.Count;i++) {
+            if (stopBlockDict.ContainsKey(GetPosInt(allTrains[i].position))) {
+                stopBlockDict[GetPosInt(allTrains[i].position)].Enter();
+            }
+        }
+    }
+
     void RefreshBlocks() {
+        stopBlockDict.Clear();
         stopBlocks.Clear();
         List<TrainStop> Signals = GetStops(TrainStop.StopType.signal);
         foreach (TrainStop signal in Signals) {
@@ -90,16 +115,27 @@ public class TrackController : MonoBehaviour
         }
         int breaker = 0;
         List<Vector3Int> tiles = new List<Vector3Int>();
+        int i;
         while (breaker<1000 && SignalsEnter.Count>0) {
             stopBlocks.Add(new StopBlock());
             breaker++;
             tiles.Clear();
             tiles.Add(SignalsEnter[0].GridPosition());
+            //stopBlockDict.Add(SignalsEnter[0].GridPosition(),stopBlocks[stopBlocks.Count-1]);
             stopBlocks[stopBlocks.Count - 1].AddEntrance(SignalsEnter[0]);
             StopBlockIterate(SignalsEnter[0].GridPosition() + Vector3Int.RoundToInt(SignalsEnter[0].Direction()),
                             tiles,SignalsEnter,SignalsExit, stopBlocks[stopBlocks.Count-1],trainChunkPos);
             
             SignalsEnter.RemoveAt(0);
+            for (i = 0; i < stopBlocks[stopBlocks.Count - 1].GetEntrances().Count;i++) {
+                tiles.Remove(stopBlocks[stopBlocks.Count - 1].GetEntrances()[i].GridPosition());
+            }
+            for (i = 0; i < tiles.Count;i++) {
+                if (!stopBlockDict.ContainsKey(tiles[i]))
+                {
+                    stopBlockDict.Add(tiles[i], stopBlocks[stopBlocks.Count - 1]);
+                }
+            }
         }
         // Check if it worked
         foreach (StopBlock block in stopBlocks) {
@@ -160,8 +196,10 @@ public class TrackController : MonoBehaviour
         List<TrainStop> Entrances;
         List<TrainStop> Exits;
         bool passable;
+        float openTime;
         //bool chainpassable;
         public StopBlock() {
+            openTime = 0;
             Entrances = new List<TrainStop>();
             Exits = new List<TrainStop>();
             passable = true;
@@ -203,13 +241,17 @@ public class TrackController : MonoBehaviour
         }
 
         public void Enter () {
+            openTime = Time.time+1;
             passable = false;
             SetStatus();
         }
 
         public void Exit () {
-            passable = true;
-            SetStatus();
+            if (Time.time > openTime)
+            {
+                passable = true;
+                SetStatus();
+            }
         }
 
         private void SetStatus() {

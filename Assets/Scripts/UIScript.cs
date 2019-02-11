@@ -109,7 +109,8 @@ public class UIScript : MonoBehaviour {
 
             // If still null, maybe find a train yard to chill in? (i.e. non-town train stop)
             if (!allTrains[i].OnHold() &&
-                (allTrains[i].GetTargetStop() == null || !allTrains[i].GetTargetStop().IsPassable()))
+                (allTrains[i].GetTargetStop() == null || 
+                 (allTrains[i].GetTargetStop().GetUser() != null && allTrains[i].GetTargetStop().GetUser() != allTrains[i])))
             {
                 allTrains[i].SetTargetStop(trackController.TrainYard());
             }

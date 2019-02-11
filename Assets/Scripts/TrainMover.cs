@@ -350,26 +350,37 @@ public partial class TrainMover : MonoBehaviour  {
                 //if (checkforstop == )
                 if (TargetStop != null && checkforstop.GridPosition() == TargetStop.GridPosition())
                 {
-                    TargetStop.ImpassableTemporarily(5f);
+                    TargetStop.ImpassableTemporarily(5f,this);
                 }
                 //Debug.Log("Stop??");
                 //speed = 0f;
-                acceleration = GetAcceleration(0f, speed);
-                StoppedBySignal = checkforstop;
+                if (!checkforstop.IsChainPassable()) {
+                    TrainStop aheadStop = checkforstop.NextSignal(turnLog);
+                    if (aheadStop != null) {
+                        checkforstop = aheadStop;
+                    }
+                }
+                if (!checkforstop.IsPassable())
+                {
+                    acceleration = GetAcceleration(0f, speed);
+                    StoppedBySignal = checkforstop;
+                }
+
             }
 
-            if (prevCar == null)
+            /*if (prevCar == null)
             {
                 //Debug.Log("Deactivating:");
                 //Debug.Log(trackController.GetPosInt(transform.position));
                 //Debug.Log(Vector3Int.RoundToInt(nextDirection));
                 checkforstop.Exit();
-            }
+            }*/
         }
         if (trackController.CheckCollision(this))
         {
             collided = true;
         }
+        trackController.UpdateSignals();
     }
 
     void UpdatePosition() {
@@ -426,7 +437,12 @@ public partial class TrainMover : MonoBehaviour  {
     }
 
     public void ReleaseHold() {
+        Debug.Log("hold released");
         onHold = false;
+    }
+
+    public Vector3Int GridPosition() {
+        return trackController.GetPosInt(transform.position);
     }
 
     public void Kick() {
@@ -476,12 +492,15 @@ public partial class TrainMover : MonoBehaviour  {
         }
 
         if (head && trackController.GetPosInt(transform.position)==Target) {
+            
             if (TargetStop!=null) {
+                
                 if (TargetStop.Connection() != null)
                 {
                     TargetStop.Connection().Book(null);
                 }
                 else {
+                    //Debug.Log("Hold Activated");
                     onHold = true;
                 }
                 //Debug.Log("what the fuck");

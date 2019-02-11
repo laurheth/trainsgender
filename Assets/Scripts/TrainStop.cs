@@ -19,9 +19,11 @@ public class TrainStop : MonoBehaviour {
     List<TrainStop> ChainsFrom;
     List<TrainStop> ChainsInto;
     float waitTime;
+    TrainMover usedBy;
     // Use this for initialization
     private void Awake()
     {
+        usedBy = null;
         town = null;
         IsExitFor = null;
         IsEntryFor = null;
@@ -75,9 +77,9 @@ public class TrainStop : MonoBehaviour {
                 stop.CheckChains();
             }
         }
-        if (ShowMessages) {
+        /*if (ShowMessages) {
             Debug.Log(setTo);
-        }
+        }*/
         if (setTo && checkSelfChains)
         {
             CheckChains();
@@ -100,6 +102,10 @@ public class TrainStop : MonoBehaviour {
 
     public bool IsPassable() {
         return passable;
+    }
+
+    public bool IsChainPassable() {
+        return chainPassable;
     }
 
     public void SetAsEntrance(TrackController.StopBlock newBlock) {
@@ -128,11 +134,12 @@ public class TrainStop : MonoBehaviour {
     }
 
     public void Hold() {
-        //Debug.Log("holding");
+        Debug.Log("holding");
         waitTime += Time.deltaTime;
     }
 
-    IEnumerator ImpassableTemp(float wait) {
+    IEnumerator ImpassableTemp(float wait,TrainMover trainUsing) {
+        usedBy = trainUsing;
         waitTime = Mathf.Abs(wait);
         SetPassable(false);
         //Enter();
@@ -141,11 +148,16 @@ public class TrainStop : MonoBehaviour {
             yield return null;
         }
         SetPassable(true);
+        usedBy = null;
         //Exit();
     }
 
-    public void ImpassableTemporarily(float wait) {
-        StartCoroutine(ImpassableTemp(wait));
+    public void ImpassableTemporarily(float wait,TrainMover trainUsing) {
+        StartCoroutine(ImpassableTemp(wait,trainUsing));
+    }
+
+    public TrainMover GetUser() {
+        return usedBy;
     }
 
     public void CheckChains() {
@@ -154,13 +166,13 @@ public class TrainStop : MonoBehaviour {
         }
         bool any = true;
         bool all = false;
-        Debug.Log("Chain Chain:");
+        //Debug.Log("Chain Chain:");
         foreach (TrainStop stop in ChainsInto) {
             any &= stop.IsPassable();
             all |= stop.IsPassable();
-            Debug.Log(stop.GridPosition() + " " + stop.IsPassable());
+            //Debug.Log(stop.GridPosition() + " " + stop.IsPassable());
         }
-        Debug.Log(any + " " + all);
+        //Debug.Log(any + " " + all);
         SetChain(any);
         SetPassable(all && IsEntryFor.CurrentState(),false);
     }
@@ -217,4 +229,18 @@ public class TrainStop : MonoBehaviour {
         passenger.DoneTravelling();
     }
 
+    public TrainStop NextSignal(Dictionary<TrainMover.TurnKey,float> turnLog) {
+        //TrainStop toReturn = null;
+        Vector3Int[] dirs = { Vector3Int.up, Vector3Int.down, Vector3Int.left, Vector3Int.right };
+        for (int i = 0; i < ChainsInto.Count;i++) {
+            for (int j = 0; j < 4;j++) {
+                TrainMover.TurnKey newKey = new TrainMover.TurnKey(ChainsInto[i].GridPosition(),dirs[j]);
+                if (turnLog.ContainsKey(newKey)) {
+                    return ChainsInto[i];
+                }
+            }
+        }
+
+        return null;
+    }
 }

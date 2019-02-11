@@ -56,7 +56,8 @@ MonoBehaviour:
   passable: 0
   ChainSignal: 1
   chainPassable: 0
-  ShowMessages: 1
+  ShowMessages: 0
+  townObj: {fileID: 0}
 --- !u!212 &212851157819189430
 SpriteRenderer:
   m_ObjectHideFlags: 1
