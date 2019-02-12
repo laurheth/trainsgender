@@ -21,6 +21,8 @@ public class TrackController : MonoBehaviour
     List<StopBlock> stopBlocks;
     public GameObject blockingObj;
     Tilemap blockingMap;
+    public GameObject basemapObj;
+    Tilemap baseMap;
     List<Vector3Int> rivers;
     float upDate;
     public TileBase[] bridgeTiles;
@@ -56,6 +58,7 @@ public class TrackController : MonoBehaviour
     {
         
         blockingMap = blockingObj.GetComponent<Tilemap>();
+        baseMap = basemapObj.GetComponent<Tilemap>();
         rivers = new List<Vector3Int>();
         //rivers=blockingMa
         Vector3Int blockPos = Vector3Int.zero;
@@ -93,7 +96,9 @@ public class TrackController : MonoBehaviour
     }
 
     public bool CheckBlocking(Vector3Int pos) {
-        return blockingMap.GetTile(pos) != null;
+        return (blockingMap.GetTile(pos) != null ||
+                (baseMap.GetTile<RandomizedTile>(pos)!=null 
+                 && baseMap.GetTile<RandomizedTile>(pos).colliderType!=0));
     }
 
     public bool CheckCollision(TrainMover mover) {
@@ -444,6 +449,12 @@ public class TrackController : MonoBehaviour
             if (tile != null)
             {
                 tilemap.SetTransformMatrix(pos, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
+
+                for (int i = 0; i < allTrains.Count;i++) {
+                    /*if (GetPosInt(allTrains[i].position)==pos) {
+                        allTrains[i].gameObject.GetComponent<TrainMover>().ResetTile();
+                    }*/
+                }
             }
         }
         if (checkRivers)

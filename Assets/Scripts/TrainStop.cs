@@ -230,9 +230,12 @@ public class TrainStop : MonoBehaviour {
     }
 
     public void DropPassenger(TrainsWoman passenger) {
-        town.AddResident(passenger);
-        //passenger.SetTown(town);
-        passenger.DoneTravelling();
+        if (passenger != null)
+        {
+            town.AddResident(passenger);
+            //passenger.SetTown(town);
+            passenger.DoneTravelling();
+        }
     }
 
     public TrainStop NextSignal(Dictionary<TrainMover.TurnKey,float> turnLog) {

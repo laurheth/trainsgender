@@ -142,6 +142,7 @@ public class UIScript : MonoBehaviour {
                  (allTrains[i].GetTargetStop().GetUser() != null && allTrains[i].GetTargetStop().GetUser() != allTrains[i])))
             {
                 allTrains[i].SetTargetStop(trackController.TrainYard());
+                //allTrains[i].On
             }
         }
 

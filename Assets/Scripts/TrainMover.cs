@@ -15,6 +15,7 @@ public partial class TrainMover : MonoBehaviour  {
     public bool FindPathToTarget;
     public Vector3Int TestPosition;
     float distCorrect;
+    float rerunPathTime;
     TrainMover prevCar;
     TrackController trackController;
     Vector3[] positions;
@@ -29,6 +30,7 @@ public partial class TrainMover : MonoBehaviour  {
     public float acceleration;
     float lastSpeed;
     bool curved;
+    bool wasJustStopped;
     bool justBorn;
     public bool firstTrain;//=false;
     bool pickingUp;
@@ -57,6 +59,7 @@ public partial class TrainMover : MonoBehaviour  {
     // Use this for initialization
     private void Awake()
     {
+        wasJustStopped = false;
         justBorn = true;
         collided = false;
         onHold = false;
@@ -69,6 +72,7 @@ public partial class TrainMover : MonoBehaviour  {
         turnLog = null;
     }
     void Start () {
+        rerunPathTime = 0;
         //trainSprite.SetActive(false);
         FindPathToTarget = false;
         lindir = 1f;
@@ -135,10 +139,19 @@ public partial class TrainMover : MonoBehaviour  {
         TargetStop = stop;
         if (stop != null)
         {
+            if (stop.Connection()==null) {
+                onHold = true;
+            }
+            else {
+                ReleaseHold();
+            }
             Target = stop.GridPosition();
             FindPathToTarget = true;
         }
         else {
+            /*if (StoppedBySignal!=null) {
+                onHold = true;
+            }*/
             FindPathToTarget = false;
         }
     }
@@ -218,6 +231,14 @@ public partial class TrainMover : MonoBehaviour  {
         }
 
         int startInd=0;
+        noProperExit = true;
+        //if (exits.L)
+        if (exits==null) {
+            Debug.Log("No proper exit!!!!");
+            positions[2] = (trackController.GetPosInt(transform.position) - Vector3Int.RoundToInt(enterDirection));
+            return;
+        }
+
         int targInd=exits.Length-1;
 
 
@@ -226,7 +247,7 @@ public partial class TrainMover : MonoBehaviour  {
         Vector3 checkAheadVector = (enterDirection.normalized
                                   + Quaternion.Euler(0, 0, -Mathf.Sign(speed) * turnAngle) * enterDirection.normalized);
         bool checkExit;
-        noProperExit = true;
+
         for (j = 0; j < 2; j++)
         {
             for (i = 0; i < exits.Length; i++)
@@ -338,48 +359,56 @@ public partial class TrainMover : MonoBehaviour  {
             acceleration = GetAcceleration(0f, speed,0.8f);
             Debug.Log("Stop for empty space");
         }
-
-        TrainStop checkforstop = trackController.GetStop(trackController.GetPosInt(transform.position)
-                                                       + Vector3Int.RoundToInt(nextDirection));
-        if (checkforstop != null)
+        TrainStop checkforstop;
+        int minI = 1;
+        if (wasJustStopped) { minI = 0; }
+        for (i = minI; i < 2; i++)
         {
-            if (TargetStop != null && checkforstop.GridPosition() == Target)
+            if (StoppedBySignal) { break; }
+            if (i == 0)
             {
-                checkforstop.ImpassableTemporarily(5f, this);
+                checkforstop = trackController.GetStop(trackController.GetPosInt(transform.position));
+                wasJustStopped = false;
             }
-
-            if (checkforstop.IsPassable() && (TargetStop == null || checkforstop.GridPosition() != TargetStop.GridPosition()))
+            else
             {
-
-                checkforstop.Enter();
+                checkforstop = trackController.GetStop(trackController.GetPosInt(transform.position)
+                                                               + Vector3Int.RoundToInt(nextDirection));
             }
-            else if (head)
+            if (checkforstop != null && StoppedBySignal == null) // don't override existing stop!
             {
-                //if (checkforstop == )
-
-                //Debug.Log("Stop??");
-                //speed = 0f;
-                if (!checkforstop.IsChainPassable()) {
+                if ((TargetStop != null && checkforstop.GridPosition() == Target) ||
+                    (checkforstop.GetStopType()==TrainStop.StopType.pickUp && checkforstop.Connection()==null && onHold))
+                {
+                    checkforstop.ImpassableTemporarily(5f, this);
+                    wasJustStopped=true;
+                }
+                else if (checkforstop.IsPassable() && !checkforstop.IsChainPassable())
+                {
                     TrainStop aheadStop = checkforstop.NextSignal(turnLog);
-                    if (aheadStop != null) {
+                    if (aheadStop != null)
+                    {
                         checkforstop = aheadStop;
                     }
                 }
-                if (!checkforstop.IsPassable())
+
+                if (checkforstop.IsPassable())// && (TargetStop == null || checkforstop.GridPosition() != TargetStop.GridPosition()))
                 {
-                    acceleration = GetAcceleration(0f, speed);
+
+                    checkforstop.Enter();
+                }
+                else if (head)
+                {
+                    if (i > 0)
+                    {
+                        acceleration = GetAcceleration(0f, speed);
+                    }
+                    else {
+                        acceleration = GetAcceleration(0f, speed,0.9f); 
+                    }
                     StoppedBySignal = checkforstop;
                 }
-
             }
-
-            /*if (prevCar == null)
-            {
-                //Debug.Log("Deactivating:");
-                //Debug.Log(trackController.GetPosInt(transform.position));
-                //Debug.Log(Vector3Int.RoundToInt(nextDirection));
-                checkforstop.Exit();
-            }*/
         }
         if (trackController.CheckCollision(this))
         {
@@ -451,12 +480,31 @@ public partial class TrainMover : MonoBehaviour  {
     }
 
     public void Kick() {
+        if (noProperExit || StoppedByTile.z == 0) {
+            Vector3 scratch = nextDirectionRev+Vector3Int.zero;
+            nextDirectionRev = nextDirection + Vector3Int.zero;
+            nextDirection = scratch + Vector3Int.zero;
+            //float scrtch;
+            for (int i = 0; i < 2;i++) {
+                scratch = positions[i]+Vector3Int.zero;
+                positions[i] = positions[4 - i]+ Vector3Int.zero;
+                positions[4-i]=scratch+ Vector3Int.zero;
+            }
+            //ResetPositions();
+            noProperExit = false;
+            StoppedByTile = Vector3Int.one;
+            DefineTile(nextDirection);
+        }
         acceleration = GetAcceleration(maxSpeed, speed);
         if (StoppedBySignal != null)
         {
             StoppedBySignal.Enter();
         }
         StoppedBySignal = null;
+    }
+
+    public void ResetTile() {
+        DefineTile(nextDirection);
     }
 
 	// Update is called once per frame
@@ -491,7 +539,7 @@ public partial class TrainMover : MonoBehaviour  {
 
         if (StoppedBySignal != null) {
             //Debug.Log("signaled");
-            if (onHold) {
+            if ((onHold && StoppedBySignal.Connection()==null) || TargetStop==null) {
                 StoppedBySignal.Hold();
             }
             if (StoppedBySignal.IsPassable() == true) {
@@ -582,7 +630,8 @@ public partial class TrainMover : MonoBehaviour  {
             currentDist += Time.deltaTime * speed;
         }
 
-        if (head && currentDist % 20 < Mathf.Abs(Time.deltaTime * speed)) {
+        if (head && Time.time > rerunPathTime) {
+            rerunPathTime = Time.time + 10;
             Debug.Log("Rerun pathfinding");
             FindPathToTarget = true;
         }
