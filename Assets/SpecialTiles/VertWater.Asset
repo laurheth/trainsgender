@@ -9,7 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1c566b85e9144c48bd668e6d3e483db, type: 3}
-  m_Name: VertWater
+  m_Name: River_dy
   m_EditorClassIdentifier: 
   m_Sprite: {fileID: 21300068, guid: 2e6e826c7c5d64449868250f31819170, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -32,9 +32,10 @@ MonoBehaviour:
     e33: 1
   m_InstancedGameObject: {fileID: 0}
   m_Flags: 1
-  m_ColliderType: 1
+  m_ColliderType: 2
   m_Sprites:
   - {fileID: 21300068, guid: 2e6e826c7c5d64449868250f31819170, type: 3}
   - {fileID: 21300074, guid: 2e6e826c7c5d64449868250f31819170, type: 3}
   - {fileID: 21300076, guid: 2e6e826c7c5d64449868250f31819170, type: 3}
   m_Preview: {fileID: 21300068, guid: 2e6e826c7c5d64449868250f31819170, type: 3}
+  tileName: River_dy

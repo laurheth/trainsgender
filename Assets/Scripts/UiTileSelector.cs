@@ -23,6 +23,7 @@ public class UiTileSelector : MonoBehaviour, IPointerClickHandler {
         tileCursor.SetSprite(GetComponent<Image>().sprite);
         tileCursor.selected = true;
         tileCursor.objToPlace = objToPlace;
+        tileCursor.SetArrow((objToPlace != null));
     }
 
 }

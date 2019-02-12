@@ -30,6 +30,7 @@ public partial class TrainMover : MonoBehaviour  {
     float lastSpeed;
     bool curved;
     bool justBorn;
+    public bool firstTrain;//=false;
     bool pickingUp;
     bool noProperExit;
     bool onHold;
@@ -489,7 +490,7 @@ public partial class TrainMover : MonoBehaviour  {
         }
 
         if (StoppedBySignal != null) {
-            
+            //Debug.Log("signaled");
             if (onHold) {
                 StoppedBySignal.Hold();
             }
@@ -499,7 +500,7 @@ public partial class TrainMover : MonoBehaviour  {
                 StoppedBySignal.Enter();
                 StoppedBySignal = null;
             }
-            if (justBorn)
+            if (justBorn && !firstTrain)
             {
                 Kick();
                 justBorn = false;

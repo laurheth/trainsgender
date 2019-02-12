@@ -32,9 +32,10 @@ MonoBehaviour:
     e33: 1
   m_InstancedGameObject: {fileID: 0}
   m_Flags: 1
-  m_ColliderType: 1
+  m_ColliderType: 2
   m_Sprites:
   - {fileID: 21300010, guid: 2e6e826c7c5d64449868250f31819170, type: 3}
   - {fileID: 21300028, guid: 2e6e826c7c5d64449868250f31819170, type: 3}
   - {fileID: 21300030, guid: 2e6e826c7c5d64449868250f31819170, type: 3}
   m_Preview: {fileID: 21300010, guid: 2e6e826c7c5d64449868250f31819170, type: 3}
+  tileName: Mountains

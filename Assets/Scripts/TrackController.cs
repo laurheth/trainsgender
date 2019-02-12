@@ -15,12 +15,17 @@ public class TrackController : MonoBehaviour
     public GameObject gridObj;
     public GameObject camobj;
     public Vector3 direction;
+    //public GameObject blockingObj;
     Dictionary<Vector3Int, TrainStop> trainStops;
     Dictionary<Vector3Int, StopBlock> stopBlockDict;
     List<StopBlock> stopBlocks;
     public GameObject blockingObj;
     Tilemap blockingMap;
+    List<Vector3Int> rivers;
     float upDate;
+    public TileBase[] bridgeTiles;
+    public RandomizedTile[] riverTiles;
+    public TileBase straightTile;
     //Camera cam;
     // Use this for initialization
     void Awake()
@@ -49,8 +54,32 @@ public class TrackController : MonoBehaviour
     }*/
     private void Start()
     {
+        
         blockingMap = blockingObj.GetComponent<Tilemap>();
+        rivers = new List<Vector3Int>();
+        //rivers=blockingMa
+        Vector3Int blockPos = Vector3Int.zero;
+        for (int i = blockingMap.cellBounds.xMin; i <= blockingMap.cellBounds.xMax;i++) {
+            for (int j = blockingMap.cellBounds.yMin; j < blockingMap.cellBounds.yMax;j++) {
+                blockPos.x = i;
+                blockPos.y = j;
+                RandomizedTile maybeRiver = blockingMap.GetTile(blockPos) as RandomizedTile;
+                if (maybeRiver != null)
+                {
+                    //Debug.Log("tostring:" + maybeRiver.ToString());
+                    //Debug.Log("name:" + maybeRiver.name);
+                    if ((blockingMap.GetTile(blockPos).name.Contains("River")))
+                    {
+                        Debug.Log("river:" + blockPos);
+                        rivers.Add(blockPos);
+                    }
+                }
+            }
+        }
+
         GenerateStopBlocks();
+        //GenerateStopBlocks();
+        RefreshBlocks();
         GameObject[] townObjs = GameObject.FindGameObjectsWithTag("Town");
         allTowns = new TrainTown[townObjs.Length];
         for (int i = 0; i < townObjs.Length; i++)
@@ -95,7 +124,7 @@ public class TrackController : MonoBehaviour
         }
         for (i = 0; i < allTrains.Count;i++) {
             if (stopBlockDict.ContainsKey(GetPosInt(allTrains[i].position))) {
-                stopBlockDict[GetPosInt(allTrains[i].position)].Enter();
+                stopBlockDict[GetPosInt(allTrains[i].position)].Enter(0);
             }
         }
     }
@@ -246,8 +275,8 @@ public class TrackController : MonoBehaviour
             return Exits;
         }
 
-        public void Enter () {
-            openTime = Time.time+1;
+        public void Enter (float timeMod=1f) {
+            openTime = Mathf.Max(Time.time+timeMod,openTime);
             passable = false;
             SetStatus();
         }
@@ -408,13 +437,60 @@ public class TrackController : MonoBehaviour
         return toreturn;
     }
 
-    public void SetTile(Vector3Int pos, TileBase tile, Quaternion rotation) {
+    public void SetTile(Vector3Int pos, TileBase tile, Quaternion rotation,bool checkRivers=true) {
         if (tile==null || GetTile(pos) == null || (GetTile(pos).name != tile.name || Quaternion.Angle(TileRotation(pos),rotation)>5))
         {
             tilemap.SetTile(pos, tile);
             if (tile != null)
             {
                 tilemap.SetTransformMatrix(pos, Matrix4x4.TRS(Vector3.zero, rotation, Vector3.one));
+            }
+        }
+        if (checkRivers)
+        {
+            CheckRivers();
+        }
+    }
+
+    public void CheckRivers() {
+        int i, j,k;
+        int crossings;
+        Vector3Int[] checkDirs = { Vector3Int.up, Vector3Int.down, Vector3Int.left, Vector3Int.right };
+        TileBase thisRiver;// = blockingMap.GetTile(blockPos) as RandomizedTile;
+        Vector3Int[] exits;
+        for (i = 0; i < rivers.Count;i++) {
+            crossings = 0;
+            for (j = 0; j < 4;j++) {
+                exits = ValidExits(rivers[i] + checkDirs[j], Vector3Int.zero, true);
+                if (exits != null) {
+                    for (k = 0; k < exits.Length;k++) {
+                        if (exits[k]==rivers[i]) {
+                            crossings++;
+                        }
+                    }
+                }
+                if (crossings >= 2) { break; }
+            }
+            thisRiver = blockingMap.GetTile(rivers[i]);
+            if (thisRiver is RandomizedTile && crossings>=2) {
+                if (((RandomizedTile)thisRiver).name == "River_dx") {
+                    blockingMap.SetTile(rivers[i], bridgeTiles[0]);
+                    SetTile(rivers[i], straightTile, Quaternion.Euler(0, 0, 90),false);
+                }
+                else {
+                    blockingMap.SetTile(rivers[i], bridgeTiles[1]);
+                    SetTile(rivers[i], straightTile, Quaternion.identity,false);
+                }
+            }
+            else if (!(thisRiver is RandomizedTile) && crossings<2) {
+                if (thisRiver == bridgeTiles[0]) {
+                    blockingMap.SetTile(rivers[i], riverTiles[0]);
+                }
+                else
+                {
+                    blockingMap.SetTile(rivers[i], riverTiles[1]);
+                }
+                SetTile(rivers[i], null, Quaternion.identity, false);
             }
         }
     }

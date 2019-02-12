@@ -11,10 +11,12 @@ public class PlaceTileCursor : MonoBehaviour, IPointerClickHandler, IPointerDown
     public GameObject objToPlace;
     public bool selected;
     public GameObject cam;
+    public GameObject trackArrow;
     CamScript camScript;
 
     private void Start()
     {
+        trackArrow.SetActive(false);
         spriteRend = GetComponent<SpriteRenderer>();
         camScript = cam.GetComponent<CamScript>();
         selected = false;
@@ -22,6 +24,10 @@ public class PlaceTileCursor : MonoBehaviour, IPointerClickHandler, IPointerDown
 
     public void SetSprite(Sprite sprite) {
         spriteRend.sprite = sprite;
+    }
+
+    public void SetArrow(bool arrowNeeded) {
+        trackArrow.SetActive(arrowNeeded);
     }
 
     public TileBase GetTile() {
@@ -41,6 +47,7 @@ public class PlaceTileCursor : MonoBehaviour, IPointerClickHandler, IPointerDown
         tileToPlace = null;
         objToPlace = null;
         selected = false;
+        trackArrow.SetActive(false);
     }
 
     public void SetSelected(bool setto) {

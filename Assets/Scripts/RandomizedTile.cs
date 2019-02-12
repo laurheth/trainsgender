@@ -11,9 +11,11 @@ public class RandomizedTile : Tile
 {
     public Sprite[] m_Sprites;
     public Sprite m_Preview;
+    public string tileName;
 
-    public override void GetTileData(Vector3Int vector3Int, ITilemap tilemap, ref TileData tileData)
+    public override void GetTileData(Vector3Int position, ITilemap tilemap, ref TileData tileData)
     {
+        name = tileName;
         tileData.sprite = m_Sprites[Random.Range(0, m_Sprites.Length)];
     }
 
