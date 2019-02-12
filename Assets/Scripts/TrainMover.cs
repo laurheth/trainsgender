@@ -29,6 +29,7 @@ public partial class TrainMover : MonoBehaviour  {
     public float acceleration;
     float lastSpeed;
     bool curved;
+    bool justBorn;
     bool pickingUp;
     bool noProperExit;
     bool onHold;
@@ -55,6 +56,7 @@ public partial class TrainMover : MonoBehaviour  {
     // Use this for initialization
     private void Awake()
     {
+        justBorn = true;
         collided = false;
         onHold = false;
         noProperExit = false;
@@ -66,6 +68,7 @@ public partial class TrainMover : MonoBehaviour  {
         turnLog = null;
     }
     void Start () {
+        //trainSprite.SetActive(false);
         FindPathToTarget = false;
         lindir = 1f;
         curved = false;
@@ -76,7 +79,7 @@ public partial class TrainMover : MonoBehaviour  {
         trackController.AddSelfToTrainList(this);
         //transform.position=trackController
         squareDist = 0f;
-        speed = 0f;
+        //speed = 0f;
         acceleration = GetAcceleration(maxSpeed, speed);
         //speed = desiredSpeed;
         speed += acceleration;
@@ -122,6 +125,7 @@ public partial class TrainMover : MonoBehaviour  {
     }
 
     float GetAcceleration(float Vf, float Vo, float dist=1.6f) {
+        //if (currentDist < 4f) { dist = 2f; }
         desiredSpeed = Vf;
         return Mathf.Abs((Vf * Vf - Vo * Vo) / (2f * dist));
     }
@@ -456,13 +460,18 @@ public partial class TrainMover : MonoBehaviour  {
 
 	// Update is called once per frame
 	void Update () {
-        if (collided) {
-            collided = trackController.CheckCollision(this);
-            speed = 0;
-        }
-        if (noProperExit) {
-            acceleration = GetAcceleration(maxSpeed, speed);
-            speed = 0;
+        if (currentDist > 1)
+        {
+            if (collided)
+            {
+                collided = trackController.CheckCollision(this);
+                speed = 0;
+            }
+            if (noProperExit)
+            {
+                acceleration = GetAcceleration(maxSpeed, speed);
+                speed = 0;
+            }
         }
         if (StoppedByTile.z==0){
             if (trackController.GetTile(StoppedByTile) != null) {
@@ -480,6 +489,7 @@ public partial class TrainMover : MonoBehaviour  {
         }
 
         if (StoppedBySignal != null) {
+            
             if (onHold) {
                 StoppedBySignal.Hold();
             }
@@ -488,6 +498,11 @@ public partial class TrainMover : MonoBehaviour  {
                 acceleration = GetAcceleration(maxSpeed, speed);
                 StoppedBySignal.Enter();
                 StoppedBySignal = null;
+            }
+            if (justBorn)
+            {
+                Kick();
+                justBorn = false;
             }
         }
 
@@ -627,5 +642,9 @@ public partial class TrainMover : MonoBehaviour  {
     public void SetStats(float spd, float ang) {
         speed = spd;
         //turnAngle = ang;
+    }
+
+    public bool UnleashedYet() {
+        return currentDist > 5f;
     }
 }

@@ -539,7 +539,7 @@ MonoBehaviour:
   FindPathToTarget: 0
   TestPosition: {x: 0, y: 0, z: 0}
   trainDirection: {x: 0, y: 0, z: 0}
-  speed: 0
+  speed: 4
   desiredSpeed: 0
   maxSpeed: 0
   acceleration: 0
@@ -567,7 +567,7 @@ MonoBehaviour:
   FindPathToTarget: 0
   TestPosition: {x: 0, y: 0, z: 0}
   trainDirection: {x: 0, y: 0, z: 0}
-  speed: 0
+  speed: 4
   desiredSpeed: 0
   maxSpeed: 0
   acceleration: 0
@@ -595,7 +595,7 @@ MonoBehaviour:
   FindPathToTarget: 0
   TestPosition: {x: 0, y: 0, z: 0}
   trainDirection: {x: 0, y: 0, z: 0}
-  speed: 0
+  speed: 4
   desiredSpeed: 0
   maxSpeed: 0
   acceleration: 0
@@ -623,7 +623,7 @@ MonoBehaviour:
   FindPathToTarget: 0
   TestPosition: {x: 0, y: 0, z: 0}
   trainDirection: {x: 0, y: 0, z: 0}
-  speed: 0
+  speed: 4
   desiredSpeed: 0
   maxSpeed: 0
   acceleration: 0
@@ -651,7 +651,7 @@ MonoBehaviour:
   FindPathToTarget: 0
   TestPosition: {x: 0, y: 0, z: 0}
   trainDirection: {x: 0, y: 0, z: 0}
-  speed: 0
+  speed: 4
   desiredSpeed: 0
   maxSpeed: 4
   acceleration: 0
@@ -679,7 +679,7 @@ MonoBehaviour:
   FindPathToTarget: 0
   TestPosition: {x: 0, y: 0, z: 0}
   trainDirection: {x: 0, y: 0, z: 0}
-  speed: 0
+  speed: 4
   desiredSpeed: 0
   maxSpeed: 0
   acceleration: 0

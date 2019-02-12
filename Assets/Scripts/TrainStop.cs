@@ -19,10 +19,12 @@ public class TrainStop : MonoBehaviour {
     List<TrainStop> ChainsFrom;
     List<TrainStop> ChainsInto;
     float waitTime;
+    bool alwaysOff;
     TrainMover usedBy;
     // Use this for initialization
     private void Awake()
     {
+        alwaysOff = false;
         usedBy = null;
         town = null;
         IsExitFor = null;
@@ -67,8 +69,12 @@ public class TrainStop : MonoBehaviour {
         return thisType;
     }
 
+    public void SetAlwaysOff() {
+        alwaysOff = true;
+    }
+
     public void SetPassable(bool setTo, bool checkSelfChains=true) {
-        passable = setTo;
+        passable = setTo && !alwaysOff;
         UpdateColor();
         if (ChainsFrom.Count > 0)
         {
@@ -101,7 +107,7 @@ public class TrainStop : MonoBehaviour {
     }
 
     public bool IsPassable() {
-        return passable;
+        return passable && !alwaysOff;
     }
 
     public bool IsChainPassable() {
