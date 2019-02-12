@@ -18,6 +18,8 @@ public class TrackController : MonoBehaviour
     Dictionary<Vector3Int, TrainStop> trainStops;
     Dictionary<Vector3Int, StopBlock> stopBlockDict;
     List<StopBlock> stopBlocks;
+    public GameObject blockingObj;
+    Tilemap blockingMap;
     float upDate;
     //Camera cam;
     // Use this for initialization
@@ -47,7 +49,7 @@ public class TrackController : MonoBehaviour
     }*/
     private void Start()
     {
-        
+        blockingMap = blockingObj.GetComponent<Tilemap>();
         GenerateStopBlocks();
         GameObject[] townObjs = GameObject.FindGameObjectsWithTag("Town");
         allTowns = new TrainTown[townObjs.Length];
@@ -59,6 +61,10 @@ public class TrackController : MonoBehaviour
 
     public void AddSelfToTrainList(TrainMover mover) {
         allTrains.Add(mover.transform);
+    }
+
+    public bool CheckBlocking(Vector3Int pos) {
+        return blockingMap.GetTile(pos) != null;
     }
 
     public bool CheckCollision(TrainMover mover) {
