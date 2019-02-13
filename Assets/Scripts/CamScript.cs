@@ -55,14 +55,20 @@ public class CamScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
+        camPos = transform.position;
         // Camera movement
         vx = Input.GetAxis("Vertical") * speed * camSize * Time.deltaTime;
         hx = Input.GetAxis("Horizontal") * speed * camSize * Time.deltaTime;
         //transform.Translate(hx*Time.deltaTime, vx* Time.deltaTime, 0);
 
         // Zoom with scrollwheel
-        camSize -= Input.GetAxis("Mouse ScrollWheel");
+        if (Input.GetKey(KeyCode.Minus)) {
+            camSize *= 1 + 2*Time.deltaTime;
+        }
+        else if (Input.GetKey(KeyCode.Plus) || Input.GetKey(KeyCode.Equals)) {
+            camSize /= 1 + 2*Time.deltaTime;
+        }
+        camSize -= 2*Input.GetAxis("Mouse ScrollWheel");
         if (camSize < MinMaxSize[0]) { camSize = MinMaxSize[0]; }
         if (camSize > MinMaxSize[1]) { camSize = MinMaxSize[1]; }
         if (2*camSize > yBounds[1]-yBounds[0]) {

@@ -9,6 +9,7 @@ TagManager:
   - Town
   - TrackController
   - GUI
+  - LoadOrNot
   layers:
   - Default
   - TransparentFX

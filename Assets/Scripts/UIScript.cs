@@ -26,10 +26,13 @@ public class UIScript : MonoBehaviour {
     float notifyPos;
     float notifyTime;
 
+    float quitTimer;
+
 	// Use this for initialization
 	void Start () {
+        quitTimer = 0;
         notifyPos = 110;
-        notifyTime = 0;
+        notifyTime = -1;
         notificationRect = notificationPanel.GetComponent<RectTransform>();
         notifyText = notificationText.GetComponent<Text>();
 
@@ -81,6 +84,24 @@ public class UIScript : MonoBehaviour {
 
     private void Update()
     {
+        if (Input.GetKey(KeyCode.Q)) {
+            Notification("Hold 'Q' to quit");
+            quitTimer = Mathf.Max(0,quitTimer+Time.deltaTime);
+        }
+        else if (quitTimer>0) {
+            quitTimer -= Time.deltaTime;
+        }
+
+        if (quitTimer>2) {
+            trackController.Save();
+
+            Application.Quit();
+            #if UNITY_EDITOR
+            //Stop playing the scene
+            UnityEditor.EditorApplication.isPlaying = false;
+            #endif
+        }
+
         if (Time.time < notifyTime) {
             notifyPos = Mathf.Max(0, notifyPos - 100 * Time.deltaTime);
             notificationRect.anchoredPosition = notifyPos * Vector3.up;

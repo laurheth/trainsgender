@@ -5,13 +5,16 @@ using UnityEngine;
 public class TrainStop : MonoBehaviour {
     Vector3Int position;
     Grid parentGrid;
+
+    [System.Serializable]
     public enum StopType { pickUp, dropOff, signal };
+
     public StopType thisType;
     public bool passable;
     public bool ChainSignal;
     public bool chainPassable;
     public bool ShowMessages;
-    SpriteRenderer sprite;
+    public SpriteRenderer sprite;
     TrackController.StopBlock IsExitFor;
     TrackController.StopBlock IsEntryFor;
     public GameObject townObj;
@@ -19,7 +22,7 @@ public class TrainStop : MonoBehaviour {
     List<TrainStop> ChainsFrom;
     List<TrainStop> ChainsInto;
     float waitTime;
-    bool alwaysOff;
+    public bool alwaysOff;
     TrainMover usedBy;
     // Use this for initialization
     private void Awake()

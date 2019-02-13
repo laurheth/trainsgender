@@ -28,6 +28,7 @@ public partial class TrainMover : MonoBehaviour  {
     public float desiredSpeed;
     public float maxSpeed;
     public float acceleration;
+    public bool titleScreen;
     float lastSpeed;
     bool curved;
     bool wasJustStopped;
@@ -117,7 +118,10 @@ public partial class TrainMover : MonoBehaviour  {
         //SetTargetStop(pickups[0]);
         pickingUp = true;
 
-        uIScript = GameObject.FindGameObjectWithTag("GUI").GetComponent<UIScript>();
+        if (!titleScreen)
+        {
+            uIScript = GameObject.FindGameObjectWithTag("GUI").GetComponent<UIScript>();
+        }
 	}
 
     public struct TurnKey {

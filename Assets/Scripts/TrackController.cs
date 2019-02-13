@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class TrackController : MonoBehaviour
+public partial class TrackController : MonoBehaviour
 {
     Tilemap tilemap;
     //GameObject underlayobj;
@@ -28,10 +28,13 @@ public class TrackController : MonoBehaviour
     public TileBase[] bridgeTiles;
     public RandomizedTile[] riverTiles;
     public TileBase straightTile;
+    public bool titleScreen;
+    bool firstFrame;
     //Camera cam;
     // Use this for initialization
     void Awake()
     {
+        firstFrame = true;
         upDate = 0;
         //DoRefresh = false;
         tilemap = GetComponent<Tilemap>();
@@ -56,25 +59,37 @@ public class TrackController : MonoBehaviour
     }*/
     private void Start()
     {
-        
-        blockingMap = blockingObj.GetComponent<Tilemap>();
-        baseMap = basemapObj.GetComponent<Tilemap>();
+        if (blockingObj != null && basemapObj != null)
+        {
+            blockingMap = blockingObj.GetComponent<Tilemap>();
+            baseMap = basemapObj.GetComponent<Tilemap>();
+        }
+        else {
+            blockingMap = null;
+            baseMap = null;
+        }
+
         rivers = new List<Vector3Int>();
         //rivers=blockingMa
         Vector3Int blockPos = Vector3Int.zero;
-        for (int i = blockingMap.cellBounds.xMin; i <= blockingMap.cellBounds.xMax;i++) {
-            for (int j = blockingMap.cellBounds.yMin; j < blockingMap.cellBounds.yMax;j++) {
-                blockPos.x = i;
-                blockPos.y = j;
-                RandomizedTile maybeRiver = blockingMap.GetTile(blockPos) as RandomizedTile;
-                if (maybeRiver != null)
+        if (!titleScreen)
+        {
+            for (int i = blockingMap.cellBounds.xMin; i <= blockingMap.cellBounds.xMax; i++)
+            {
+                for (int j = blockingMap.cellBounds.yMin; j < blockingMap.cellBounds.yMax; j++)
                 {
-                    //Debug.Log("tostring:" + maybeRiver.ToString());
-                    //Debug.Log("name:" + maybeRiver.name);
-                    if ((blockingMap.GetTile(blockPos).name.Contains("River")))
+                    blockPos.x = i;
+                    blockPos.y = j;
+                    RandomizedTile maybeRiver = blockingMap.GetTile(blockPos) as RandomizedTile;
+                    if (maybeRiver != null)
                     {
-                        Debug.Log("river:" + blockPos);
-                        rivers.Add(blockPos);
+                        //Debug.Log("tostring:" + maybeRiver.ToString());
+                        //Debug.Log("name:" + maybeRiver.name);
+                        if ((blockingMap.GetTile(blockPos).name.Contains("River")))
+                        {
+                            Debug.Log("river:" + blockPos);
+                            rivers.Add(blockPos);
+                        }
                     }
                 }
             }
@@ -116,6 +131,36 @@ public class TrackController : MonoBehaviour
 
     private void Update()
     {
+        if (firstFrame && !titleScreen) {
+            GameObject loadornot = GameObject.FindGameObjectWithTag("LoadOrNot");
+            if (loadornot != null) {
+                if (loadornot.GetComponent<LoadOrNot>().DoLoad()) {
+                    try
+                    {
+                        LoadGame();
+                        Destroy(loadornot);
+                    }
+                    catch
+                    {
+                        Debug.Log("Load failed.");
+                    }
+                    finally
+                    {
+                        firstFrame = false;
+                    }
+                }
+
+            }
+
+        }
+
+        if (Input.GetKey(KeyCode.Space)) {
+            Save();
+        }
+        if (Input.GetKey(KeyCode.L)) {
+            LoadGame();
+        }
+
         if (Time.time > upDate) {
             UpdateSignals();
             upDate = Time.time + 2.718281828f;
@@ -333,10 +378,10 @@ public class TrackController : MonoBehaviour
         return toReturn;
     }
 
-    public List<TrainStop> GetStops(TrainStop.StopType type, bool onlyDisconnected=false) {
+    public List<TrainStop> GetStops(TrainStop.StopType type, bool onlyDisconnected=false, bool getAll=false) {
         List<TrainStop> toreturn = new List<TrainStop>();
         foreach (KeyValuePair<Vector3Int,TrainStop> stop in trainStops) {
-            if (stop.Value.GetStopType() == type) {
+            if (stop.Value.GetStopType() == type || getAll) {
                 if (!onlyDisconnected || stop.Value.Connection()==null)
                 toreturn.Add(stop.Value);
             }
@@ -506,7 +551,7 @@ public class TrackController : MonoBehaviour
         }
     }
 
-    public void AddObject(Vector3Int pos, GameObject obj, Quaternion rotation) {
+    public void AddObject(Vector3Int pos, GameObject obj, Quaternion rotation,bool loading=false) {
         //if (obj == null) { return; }
         bool changedSignals = false;
         if (trainStops.ContainsKey(pos)) {
@@ -536,11 +581,14 @@ public class TrackController : MonoBehaviour
             }
         }
 
-        if (changedSignals)
+        if (!loading)
         {
-            StartCoroutine(RefreshLoop());
-            //DoRefresh = true;
-            RefreshBlocks();
+            if (changedSignals)
+            {
+                StartCoroutine(RefreshLoop());
+                //DoRefresh = true;
+                RefreshBlocks();
+            }
         }
     }
 
