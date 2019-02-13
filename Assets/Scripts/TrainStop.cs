@@ -19,8 +19,8 @@ public class TrainStop : MonoBehaviour {
     TrackController.StopBlock IsEntryFor;
     public GameObject townObj;
     TrainTown town;
-    List<TrainStop> ChainsFrom;
-    List<TrainStop> ChainsInto;
+    List<TrainStop> ChainsFrom; // Chains that lead to this stop
+    List<TrainStop> ChainsInto; // Chains that this stop leads into
     float waitTime;
     public bool alwaysOff;
     TrainMover usedBy;
@@ -76,23 +76,33 @@ public class TrainStop : MonoBehaviour {
         alwaysOff = true;
     }
 
-    public void SetPassable(bool setTo, bool checkSelfChains=true) {
+    public void SetPassable(bool setTo, List<TrainStop> checkSelfChains=null) {
         passable = setTo && !alwaysOff;
         UpdateColor();
-        if (ChainsFrom.Count > 0)
+        if (checkSelfChains==null) {
+            checkSelfChains = new List<TrainStop>();
+        }
+        if (setTo && !checkSelfChains.Contains(this)) // Check own chains
         {
-            foreach (TrainStop stop in ChainsFrom)
+            checkSelfChains.Add(this);
+            CheckChains(checkSelfChains);
+        }
+
+        if (ChainsFrom.Count > 0) // Don't loop forever
+        {
+            foreach (TrainStop stop in ChainsFrom) // Ask the chains that lead into this one to update
             {
-                stop.CheckChains();
+                if (!checkSelfChains.Contains(stop))
+                {
+                    checkSelfChains.Add(stop);
+                    stop.CheckChains(checkSelfChains);
+                }
             }
         }
         /*if (ShowMessages) {
             Debug.Log(setTo);
         }*/
-        if (setTo && checkSelfChains)
-        {
-            CheckChains();
-        }
+
     }
 
     private void UpdateColor() {
@@ -169,7 +179,7 @@ public class TrainStop : MonoBehaviour {
         return usedBy;
     }
 
-    public void CheckChains() {
+    public void CheckChains(List<TrainStop> checkSelfChains=null) {
         if (!ChainSignal || ChainsInto.Count==0) {
             return;
         }
@@ -183,7 +193,12 @@ public class TrainStop : MonoBehaviour {
         }
         //Debug.Log(any + " " + all);
         SetChain(any);
-        SetPassable(all && IsEntryFor.CurrentState(),false);
+        if (checkSelfChains == null)
+        {
+            checkSelfChains = new List<TrainStop>();
+            checkSelfChains.Add(this);
+        }
+        SetPassable(all && IsEntryFor.CurrentState(),checkSelfChains);
     }
 
     public void SetChain(bool chainbool) {

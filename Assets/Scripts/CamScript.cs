@@ -68,7 +68,7 @@ public class CamScript : MonoBehaviour {
         else if (Input.GetKey(KeyCode.Plus) || Input.GetKey(KeyCode.Equals)) {
             camSize /= 1 + 2*Time.deltaTime;
         }
-        camSize -= 2*Input.GetAxis("Mouse ScrollWheel");
+        camSize *= 1 + Mathf.Clamp(-Input.GetAxis("Mouse ScrollWheel"),-8*Time.deltaTime,8*Time.deltaTime);
         if (camSize < MinMaxSize[0]) { camSize = MinMaxSize[0]; }
         if (camSize > MinMaxSize[1]) { camSize = MinMaxSize[1]; }
         if (2*camSize > yBounds[1]-yBounds[0]) {

@@ -25,17 +25,21 @@ public partial class TrackController : MonoBehaviour
     Tilemap baseMap;
     List<Vector3Int> rivers;
     float upDate;
+    float autoSave;
     public TileBase[] bridgeTiles;
     public RandomizedTile[] riverTiles;
     public TileBase straightTile;
     public bool titleScreen;
     bool firstFrame;
+    bool refreshing;
     //Camera cam;
     // Use this for initialization
     void Awake()
     {
+        refreshing = false;
         firstFrame = true;
         upDate = 0;
+        autoSave = 0;
         //DoRefresh = false;
         tilemap = GetComponent<Tilemap>();
         grid = gridObj.GetComponent<Grid>();
@@ -154,11 +158,15 @@ public partial class TrackController : MonoBehaviour
 
         }
 
-        if (Input.GetKey(KeyCode.Space)) {
+        /*if (Input.GetKey(KeyCode.Space)) {
             Save();
         }
         if (Input.GetKey(KeyCode.L)) {
             LoadGame();
+        }*/
+        if (Time.time>autoSave) {
+            Save();
+            autoSave = Time.time + 600;
         }
 
         if (Time.time > upDate) {
@@ -586,35 +594,41 @@ public partial class TrackController : MonoBehaviour
             if (changedSignals)
             {
                 StartCoroutine(RefreshLoop());
-                //DoRefresh = true;
+
                 RefreshBlocks();
             }
         }
     }
 
     IEnumerator RefreshLoop() {
-        GameObject[] movers = GameObject.FindGameObjectsWithTag("TrainChunk");
-        List<TrainStop> stops = GetStops(TrainStop.StopType.signal);
-        int i, j;
-        bool noCollisions;
-        do
+        
+        if (!refreshing)
         {
-            noCollisions = true;
-            for (i = 0; i < movers.Length; i++)
+            refreshing = true;
+            GameObject[] movers = GameObject.FindGameObjectsWithTag("TrainChunk");
+            List<TrainStop> stops = GetStops(TrainStop.StopType.signal);
+            int i, j;
+            bool noCollisions;
+            do
             {
-                if (movers[i] == null) { continue; }
-                for (j = 0; j < stops.Count; j++)
+                noCollisions = true;
+                for (i = 0; i < movers.Length; i++)
                 {
-                    if (stops[j] == null) { continue; }
-                    if (GetPosInt(movers[i].transform.position) == GetPosInt(stops[j].transform.position))
+                    if (movers[i] == null) { continue; }
+                    for (j = 0; j < stops.Count; j++)
                     {
-                        noCollisions = false;
+                        if (stops[j] == null) { continue; }
+                        if (GetPosInt(movers[i].transform.position) == GetPosInt(stops[j].transform.position))
+                        {
+                            noCollisions = false;
+                        }
                     }
                 }
-            }
-            yield return null;
-        } while (!noCollisions);
-        RefreshBlocks();
+                yield return null;
+            } while (!noCollisions);
+            RefreshBlocks();
+            refreshing = false;
+        }
         yield return null;
     }
 }

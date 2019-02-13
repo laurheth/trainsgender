@@ -511,8 +511,21 @@ public partial class TrainMover : MonoBehaviour  {
         DefineTile(nextDirection);
     }
 
-	// Update is called once per frame
-	void Update () {
+    // Frame update
+    private void Update()
+    {
+        if (trainSprite != null)
+        {
+            trainSprite.transform.position = transform.position;
+            trainSprite.transform.rotation =
+                           Quaternion.LookRotation(Vector3.forward,
+                                                   Quaternion.Euler(0, 0, 90) * (prevCarObj.transform.position
+                                                                             - transform.position));
+        }
+    }
+
+    // Physics step updated
+    void FixedUpdate () {
         if (currentDist > 1)
         {
             if (collided)
@@ -604,11 +617,11 @@ public partial class TrainMover : MonoBehaviour  {
         }
 
         if (!Mathf.Approximately(speed,desiredSpeed)) {
-            if (speed - Time.deltaTime*acceleration>desiredSpeed) {
-                speed -= Time.deltaTime * acceleration;
+            if (speed - Time.fixedDeltaTime*acceleration>desiredSpeed) {
+                speed -= Time.fixedDeltaTime * acceleration;
             }
-            else if (speed + Time.deltaTime * acceleration < desiredSpeed) {
-                speed += Time.deltaTime * acceleration;
+            else if (speed + Time.fixedDeltaTime * acceleration < desiredSpeed) {
+                speed += Time.fixedDeltaTime * acceleration;
             }
             else {
                 speed = desiredSpeed;
@@ -625,16 +638,17 @@ public partial class TrainMover : MonoBehaviour  {
             }
         }*/
 
-        if (Mathf.Sign(speed)*(distCorrect-Time.deltaTime*speed)>0) {
-            squareDist += 2f*Time.deltaTime * speed;
-            currentDist += 2f*Time.deltaTime * speed;
+        if (Mathf.Sign(speed)*(distCorrect-Time.fixedDeltaTime*speed)>0) {
+            squareDist += 2f*Time.fixedDeltaTime * speed;
+            currentDist += 2f*Time.fixedDeltaTime * speed;
         }
-        else if (Mathf.Sign(speed)*(distCorrect + Time.deltaTime*speed) > 0) {
-            squareDist += Time.deltaTime * speed;
-            currentDist += Time.deltaTime * speed;
+        else if (Mathf.Sign(speed)*(distCorrect + Time.fixedDeltaTime*speed) > 0) {
+            squareDist += Time.fixedDeltaTime * speed;
+            currentDist += Time.fixedDeltaTime * speed;
         }
 
-        if (head && Time.time > rerunPathTime) {
+        if (head && Time.time > rerunPathTime)
+        {
             rerunPathTime = Time.time + 10;
             Debug.Log("Rerun pathfinding");
             FindPathToTarget = true;
@@ -684,13 +698,6 @@ public partial class TrainMover : MonoBehaviour  {
         if (prevCar != null) {
             prevCar.SetBackDist(currentDist, prevCarDist);
             prevCar.SetStats(speed, turnAngle);
-            if (trainSprite != null) {
-                trainSprite.transform.position = transform.position;
-                trainSprite.transform.rotation =
-                               Quaternion.LookRotation(Vector3.forward,
-                                                       Quaternion.Euler(0,0,90)*(prevCarObj.transform.position
-                                                                                 - transform.position));
-            }
         }
 	}
     public void SetStats(float spd, float ang) {
