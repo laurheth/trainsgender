@@ -81,7 +81,7 @@ public class CamScript : MonoBehaviour {
             camSize = horizSize * Screen.height / Screen.width;
         }
 
-        cam.orthographicSize = camSize;
+        cam.orthographicSize = Mathf.FloorToInt(camSize);
 
 
         camPos.x = Mathf.Clamp(camPos.x + hx,xBounds[0]+horizSize,xBounds[1]-horizSize);

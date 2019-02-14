@@ -142,7 +142,7 @@ public partial class TrackController : MonoBehaviour
                     try
                     {
                         LoadGame();
-                        Destroy(loadornot);
+                        //Destroy(loadornot);
                     }
                     catch
                     {
@@ -166,7 +166,7 @@ public partial class TrackController : MonoBehaviour
         }*/
         if (Time.time>autoSave) {
             Save();
-            autoSave = Time.time + 600;
+            autoSave = Time.time + 300;
         }
 
         if (Time.time > upDate) {

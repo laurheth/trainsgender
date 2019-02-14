@@ -12,6 +12,7 @@ public class LoadSaveButton : MonoBehaviour, IPointerClickHandler {
     private void Start()
     {
         loadOrNot = loadOrNotObj.GetComponent<LoadOrNot>();
+
     }
 
     public void OnPointerClick(PointerEventData eventdata) {
